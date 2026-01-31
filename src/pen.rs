@@ -69,9 +69,11 @@ fn setup_mesh_and_animation(
 }
 
 fn ray_cast_system(mut raycast: MeshRayCast, pen: Single<&Transform, With<AnimationToPlay>>, q: Query<&Character>, mut gizmos: Gizmos){
-    let ray = Ray3d::new(pen.translation, -Dir3::Y);
+    let rot = Quat::from_rotation_z(0.5);
+    let dir_vec = rot * Vec3::NEG_Y;
+    let ray = Ray3d::new(pen.translation, Dir3::new(dir_vec).unwrap());
     let hits = raycast.cast_ray(ray, &MeshRayCastSettings::default());
-    gizmos.line(ray.origin, ray.origin - (Vec3::Y), Color::from(css::RED));
+    gizmos.line(ray.origin, ray.origin + dir_vec, Color::from(css::RED));
     for (ent, _ray_mesh_hit) in hits {
         println!("{:?}", ent);
         if let Ok(character) = q.get(*ent) {
