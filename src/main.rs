@@ -11,6 +11,7 @@ use bevy::{
 
 mod menu;
 mod paper;
+mod pen;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum GameState {
@@ -47,6 +48,7 @@ fn main() {
         .init_state::<GameState>()
         .add_plugins(menu::plugin)
         .add_plugins(paper::plugin)
+        .add_plugins(pen::plugin)
         .run();
 }
 
