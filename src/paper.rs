@@ -1,4 +1,4 @@
-use bevy::{ecs::event::Trigger,picking::events::Click, picking::events::Pointer ,prelude::*};
+use bevy::{prelude::*};
 
 use bevy_rich_text3d::{
     //TouchTextMaterial3dPlugin, // Required for dynamic text updates
@@ -7,19 +7,26 @@ use bevy_rich_text3d::{
 
 use super::GameState;
 
-#[derive(Default)]
-struct Page {
+#[derive(Component)]
+pub struct Page {
     text: String,
+    pub to_redact: u32,
+    pub is_redacted: u32,
+    pub total_chars: u32,
 }
 
+
 #[derive(Component)]
-pub struct Character(pub bool);
+pub struct Character{
+    pub to_redact: bool,
+    pub is_redacted: bool
+}
 
 
 
 #[derive(Resource, Default)]
-struct Game {
-    page: Page,
+pub struct Game {
+    // pub pages: Vec<Page>,
 }
 
 pub(super) fn plugin(app: &mut App) {
@@ -32,11 +39,21 @@ pub(super) fn plugin(app: &mut App) {
         font_paths: vec!["assets/fonts/SpaceMono-Regular.ttf".to_owned()],
         ..default()
     })
-    .add_systems(OnEnter(GameState::PAGETEST), setup);
+    .add_systems(OnEnter(GameState::PAGETEST), setup)
+    .add_systems(FixedUpdate, check_redacted);
     // .add_systems(
     //     Update,
     //     (menu_action, button_system).run_if(in_state(GameState::MENU)),
     // );
+}
+
+fn check_redacted(page_q: Query<&Character>){
+    let total_redacted: i32 = page_q.iter().map(|item| if item.is_redacted {1} else {0}).sum();
+    let to_redact: i32 = page_q.iter().map(|item| if item.to_redact & !item.is_redacted {1} else {0}).sum();
+    // for character in page_q.iter() {
+        
+    // }
+    println!("is_redacted: {}, to_redact: {}", total_redacted, to_redact);
 }
 
 const PAPER_POS: Vec3 = Vec3::new(0.0, 0.8, 1.0);
@@ -46,6 +63,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    let page_string = "That's all the family news that we're allowed to talk about. We really hope you'll come and visit us soon. I mean we're literally begging you to visit us. And make it quick before they <kill us> Now it's time for Christmas dinner - I think the robots sent us a pie! You know I love my soylent green.";
     // Floor
     commands.spawn((
         Mesh3d(meshes.add(Plane3d::default().mesh().size(25.0, 25.0))),
@@ -60,20 +78,17 @@ fn setup(
         Transform::from_xyz(0.0, 0.70, 1.0),
     ));
 
-    // Paper
-    commands.spawn((
-        Mesh3d(meshes.add(Plane3d::default().mesh().size(0.6, 1.0))),
-        MeshMaterial3d(materials.add(Color::WHITE)),
-        Transform::from_translation(PAPER_POS),
-    ));
 
     // Text on the paper
-    let text = String::from("Hello World The quick brown fox jumped over the lazy dog. Well you found me, was it worth it, because depsite your violent behaviour the only thing you've managed to break so far is my heart.");
+    let text: String = page_string.into();
     let x_offset = 0.022;
     let y_offset = 0.032;
     let mut row = 0;
     let mut col = 0;
     let max_length = 25;
+    let mut to_redact = false;
+    let mut total_to_redact = 0;
+    let mut total_chars = 0;
     for word in text.split(" ") {
         let word_string = word.to_string();
         if col + word_string.len() > max_length{
@@ -82,6 +97,14 @@ fn setup(
         }
 
         for c in word_string.chars() {
+            if c == '<' {
+                to_redact = true;
+                continue
+            }
+            else if c == '>' {
+                to_redact = false;
+                continue
+            }
             commands.spawn((
                 Text3d::new(c),
                 Text3dBounds { width: 260.0 },
@@ -104,14 +127,35 @@ fn setup(
                     )
                     .with_scale(Vec3::splat(0.0022)),
                 Mesh3d::default(),
-                Character(c == 'e')
+                Character{
+                    to_redact: to_redact,
+                    is_redacted: false
+                }
             ));
+            if to_redact {
+                total_to_redact += 1;
+            }
+            total_chars += 1;
             col += 1;
         }
         col += 1;
 
 
     }
+
+
+    // Paper
+    commands.spawn((
+        Mesh3d(meshes.add(Plane3d::default().mesh().size(0.6, 1.0))),
+        MeshMaterial3d(materials.add(Color::WHITE)),
+        Transform::from_translation(PAPER_POS),
+        Page{
+            is_redacted: 0,
+            to_redact: total_to_redact,
+            total_chars: total_chars,
+            text: page_string.into()
+        }
+    ));
 
     // commands.spawn((
     //     Text3d::new("123456789098765432123456789098765 In accordance with the determinations reached during the most recent closed procedural interval, all affected parties are advised that preliminary conditions have now been satisfied and that subsequent measures will proceed without further notice.\n\nAny variance from the established sequence, whether intentional or incidental, will be documented and reconciled under the appropriate review instruments. Stakeholders should consider this communication to constitute sufficient advisory of impending adjustments, the full scope of which will be disclosed only upon completion of the requisite confirmations."),
