@@ -1,6 +1,6 @@
 use bevy::{app::AppExit, prelude::*};
 
-use crate::GameState;
+use super::GameState;
 
 #[derive(Component)]
 enum MenuAction {
@@ -35,6 +35,8 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn((DespawnOnExit(GameState::MENU), Camera2d));
+
     // Common style for all buttons on the screen
     let button_node = Node {
         width: px(300),

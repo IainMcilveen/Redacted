@@ -1,21 +1,22 @@
 use bevy::prelude::*;
 
 mod menu;
+mod paper;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum GameState {
-    #[default]
     MENU,
+    #[default]
+    PAGETEST,
     PLAYING,
-    GAMEOVER,
 }
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .init_state::<GameState>()
-        .add_systems(Startup, setup)
         .add_plugins(menu::plugin)
+        .add_plugins(paper::plugin)
         .run();
 }
 
