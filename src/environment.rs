@@ -55,21 +55,21 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut textures: ResMut<Assets<Image>>,
 ) {
-    let glass_cracks_folder = asset_server.load_folder("textures/glass_cracks");
-    commands.insert_resource(GlassCracksFolder(glass_cracks_folder));
+    // let glass_cracks_folder = asset_server.load_folder("textures/glass_cracks");
+    // commands.insert_resource(GlassCracksFolder(glass_cracks_folder));
 
-    let (glass_cracks_layout, _sources, atlas_image) = create_texture_atlas(
-        loaded_folders.get(&glass_cracks_handles.0).unwrap(),
-        Some(UVec2::splat(2)),
-        None,
-        &mut textures,
-    );
+    // let (glass_cracks_layout, _sources, atlas_image) = create_texture_atlas(
+    //     loaded_folders.get(&glass_cracks_handles.0).unwrap(),
+    //     Some(UVec2::splat(2)),
+    //     None,
+    //     &mut textures,
+    // );
 
-    let glass_cracks_material_handle = materials.add(StandardMaterial {
-        base_color_texture: Some(atlas_image.clone()),
-        unlit: true,
-        ..default()
-    });
+    // let glass_cracks_material_handle = materials.add(StandardMaterial {
+    //     base_color_texture: Some(atlas_image.clone()),
+    //     unlit: true,
+    //     ..default()
+    // });
 
     let wall_texture_handle =
         asset_server.load_with_settings("textures/wall.png", |settings: &mut _| {
@@ -100,11 +100,11 @@ fn setup(
     ));
 
     // Glass Cracks
-    commands.spawn((
-        Mesh3d(meshes.add(Plane3d::new(Vec3::NEG_Z, Vec2::new(16.0, 12.0).div(2.0)).mesh())),
-        MeshMaterial3d(glass_cracks_material_handle),
-        Transform::from_xyz(0.0, 2.0, 10.0),
-    ));
+    // commands.spawn((
+    //     Mesh3d(meshes.add(Plane3d::new(Vec3::NEG_Z, Vec2::new(16.0, 12.0).div(2.0)).mesh())),
+    //     MeshMaterial3d(glass_cracks_material_handle),
+    //     Transform::from_xyz(0.0, 2.0, 10.0),
+    // ));
 
     // Desk
     commands.spawn((
