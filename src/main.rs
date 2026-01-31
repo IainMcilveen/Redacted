@@ -9,10 +9,11 @@ use bevy::{
     },
 };
 
+mod environment;
 mod menu;
+mod paint;
 mod paper;
 mod pen;
-mod environment;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum GameState {
@@ -51,6 +52,7 @@ fn main() {
         .add_plugins(paper::plugin)
         .add_plugins(pen::plugin)
         .add_plugins(environment::plugin)
+        .add_plugins(paint::plugin)
         .run();
 }
 

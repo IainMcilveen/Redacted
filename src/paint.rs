@@ -4,15 +4,21 @@ use bevy::{camera::visibility::RenderLayers, prelude::*, render::render_resource
 use crate::environment::CAMERA_POS;
 use crate::paper::PAPER_POS;
 
-pub(super) fn plugin(app: &mut App) {
-    app.add_systems(Startup, setup)
-        .add_systems(Update, mouse_draw_system);
+#[derive(Resource, Default)]
+struct BrushState {
+    last_pos: Option<Vec2>,
 }
 
 #[derive(Component)]
 struct SecondaryCamera;
 
 const CANVAS_LAYER: RenderLayers = RenderLayers::layer(1);
+
+pub(super) fn plugin(app: &mut App) {
+    app.init_resource::<BrushState>()
+        .add_systems(Startup, setup)
+        .add_systems(Update, mouse_draw_system);
+}
 
 fn setup(
     mut commands: Commands,
@@ -55,20 +61,17 @@ fn setup(
         })),
         Transform::from_translation(PAPER_POS),
     ));
-
-    commands.spawn((
-        Camera3d::default(),
-        Transform::from_translation(CAMERA_POS).looking_at(PAPER_POS, Vec3::Y),
-    ));
 }
 
 fn mouse_draw_system(
     buttons: Res<ButtonInput<MouseButton>>,
     window: Query<&Window>,
     camera_q: Query<(&Camera, &GlobalTransform), (With<Camera3d>, Without<SecondaryCamera>)>,
+    mut brush_state: ResMut<BrushState>,
     mut commands: Commands,
 ) {
     if !buttons.pressed(MouseButton::Left) {
+        brush_state.last_pos = None;
         return;
     }
 
@@ -94,16 +97,33 @@ fn mouse_draw_system(
             // We negate local_z so that moving the mouse "forward" (+Z) maps correctly to the 2D canvas
             let canvas_x = local_x * 1000.0;
             let canvas_y = -local_z * 1000.0;
+            let current_pos = Vec2::new(canvas_x, canvas_y);
 
-            println!("{:?} {:?}", canvas_x, canvas_y);
+            // If we have a previous point, interpolate
+            if let Some(last_pos) = brush_state.last_pos {
+                let dist = last_pos.distance(current_pos);
+                let step_size = 2.0; // Lower = smoother line, higher = better performance
+                let steps = (dist / step_size).ceil() as i32;
 
-            // Spawn a "brush stroke" sprite on the hidden canvas layer
-            // Map the 3D X/Z to 2D X/Y for the canvas camera
-            commands.spawn((
-                Sprite::from_color(Color::srgb(1.0, 0.0, 0.0), Vec2::splat(50.0)),
-                Transform::from_xyz(canvas_x, canvas_y, 0.0),
-                CANVAS_LAYER,
-            ));
+                for i in 0..steps {
+                    let lerped_pos = last_pos.lerp(current_pos, i as f32 / steps as f32);
+
+                    commands.spawn((
+                        Sprite::from_color(Color::srgb(1.0, 0.0, 0.0), Vec2::splat(10.0)),
+                        Transform::from_xyz(lerped_pos.x, lerped_pos.y, 0.0),
+                        CANVAS_LAYER,
+                    ));
+                }
+            } else {
+                // First click stroke
+                commands.spawn((
+                    Sprite::from_color(Color::srgb(1.0, 0.0, 0.0), Vec2::splat(10.0)),
+                    Transform::from_xyz(current_pos.x, current_pos.y, 0.0),
+                    CANVAS_LAYER,
+                ));
+            }
+
+            brush_state.last_pos = Some(current_pos);
         }
     }
 }
