@@ -8,6 +8,7 @@ use bevy::{
 
 use crate::{
     audio::{SoundEvent, Sounds, StopLoopEvent},
+    feedback::{FeedbackEvent, Feedbacks},
     paint::PaintPlane,
     paper::Character,
 };
@@ -26,14 +27,12 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(Update, update_ink_supply_meter)
         .add_systems(Update, (pen_drop, ray_cast_system))
         .add_systems(FixedUpdate, check_refill);
-
 }
 
 // An example asset that contains a mesh and animation.
 const GLTF_PATH: &str = "models/marker_2.glb";
 const INK_MODEL_PATH: &str = "models/ink_res_dev.glb";
 pub const INK_RES_POS: Vec3 = Vec3::new(-0.5, 0.8, 1.5);
-
 
 // A component that stores a reference to an animation we want to play. This is
 // created when we start loading the mesh (see `setup_mesh_and_animation`) and
@@ -64,12 +63,13 @@ fn create_ink_meter(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-){
-           commands.spawn((InkSupplyMeter(),
+) {
+    commands.spawn((
+        InkSupplyMeter(),
         Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
         MeshMaterial3d(materials.add(Color::from(css::YELLOW))),
-        Transform::from_xyz(0.0, 1.0, 1.0).with_scale(Vec3::splat(0.1))));
-
+        Transform::from_xyz(0.0, 1.0, 1.0).with_scale(Vec3::splat(0.1)),
+    ));
 }
 
 fn setup_mesh_and_animation(
@@ -121,6 +121,7 @@ fn setup_mesh_and_animation(
 }
 
 fn ray_cast_system(
+    mut commands: Commands,
     mut raycast: MeshRayCast,
     mut pen_q: Single<(&Transform, &mut Marker), With<Marker>>,
     mut q: Query<&mut Character>,
@@ -150,7 +151,7 @@ fn ray_cast_system(
     gizmos.line(ray.origin, ray.origin + dir_vec, Color::from(css::RED));
 
     for (ent, ray_mesh_hit) in hits {
-        //println!("{:?}", ent);
+        println!("{:?}", ent);
 
         // update marker tip location for painting
         marker.tip_location = Some(ray_mesh_hit.point);
@@ -158,6 +159,16 @@ fn ray_cast_system(
         if let Ok(mut character) = q.get_mut(*ent) {
             if character.to_redact {
                 character.is_redacted = true;
+
+                match marker.tip_location {
+                    Some(pos) => {
+                        commands.trigger(FeedbackEvent {
+                            feedback: Feedbacks::Correct,
+                            pos: pos,
+                        });
+                    }
+                    _ => {}
+                }
             }
             // println!("redacted?, {}", character.to_redact);
         }
@@ -246,25 +257,28 @@ fn setup_scene_once_loaded(
 }
 
 fn update_ink_supply_meter(
-        mut transform: Single<&mut Transform, With<InkSupplyMeter>>,
-        ink_supply: Single<&InkSupplyPercent>,
-        pen_trans: Single<&Transform, (With<Marker>, Without<InkSupplyMeter>)>
-){
-    
+    mut transform: Single<&mut Transform, With<InkSupplyMeter>>,
+    ink_supply: Single<&InkSupplyPercent>,
+    pen_trans: Single<&Transform, (With<Marker>, Without<InkSupplyMeter>)>,
+) {
     let meter_scale = ink_supply.0 * 0.3 / 100.0;
-    let final_trans = Vec3{x: 0.0, y: transform.scale.y / 2.0, z: 0.0} + pen_trans.translation + (Vec3::X*0.2);
+    let final_trans = Vec3 {
+        x: 0.0,
+        y: transform.scale.y / 2.0,
+        z: 0.0,
+    } + pen_trans.translation
+        + (Vec3::X * 0.2);
     transform.translation = final_trans;
     transform.scale.y = meter_scale
 }
 
-fn check_refill(marker_q: Single<(&Marker, &mut InkSupplyPercent)>){
+fn check_refill(marker_q: Single<(&Marker, &mut InkSupplyPercent)>) {
     let (marker, mut ink_supply) = marker_q.into_inner();
-    if let Some(tip_location) = marker.tip_location{
-        if tip_location.distance(INK_RES_POS) < 0.08{
+    if let Some(tip_location) = marker.tip_location {
+        if tip_location.distance(INK_RES_POS) < 0.08 {
             ink_supply.0 += 1.0;
             ink_supply.1 = true;
-        }
-        else{
+        } else {
             ink_supply.1 = false;
         }
     }

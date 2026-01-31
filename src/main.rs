@@ -11,12 +11,13 @@ use bevy::{
 
 mod audio;
 mod environment;
+mod feedback;
+mod loading;
 mod menu;
+mod mob;
 mod paint;
 mod paper;
 mod pen;
-mod mob;
-mod loading;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum GameState {
@@ -61,13 +62,13 @@ fn main() {
         .add_plugins(pen::plugin)
         .add_plugins(environment::plugin)
         .add_plugins(paint::plugin)
+        .add_plugins(feedback::plugin)
         // .add_systems(Update, framerate)
         .run();
 }
 
-
-fn framerate(time: Res<Time>){
-    println!("{}", 1.0/time.delta_secs())
+fn framerate(time: Res<Time>) {
+    println!("{}", 1.0 / time.delta_secs())
 }
 
 fn setup(mut commands: Commands) {
