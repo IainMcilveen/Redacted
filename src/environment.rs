@@ -71,6 +71,6 @@ fn setup(
         // Wall View
         // Transform::from_xyz(0.0, 1.75, -10.0).looking_at(Vec3::new(0.0, 1.75, 1.0), Vec3::Y),
         // Page View
-        Transform::from_xyz(0.0, 1.75, 0.0).looking_at(Vec3::new(0.0, 1.75, 1.0), Vec3::Y), //Transform::from_xyz(0.0, 1.0, 3.0).looking_at(Vec3::Y, Vec3::Y),
+        Transform::from_xyz(0.0, 1.75, 0.0).looking_at(Vec3::new(0.0, 0.8, 1.0), Vec3::Y), //Transform::from_xyz(0.0, 1.0, 3.0).looking_at(Vec3::Y, Vec3::Y),
     ));
 }
