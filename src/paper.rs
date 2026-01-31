@@ -1,12 +1,8 @@
-use bevy::{math::VectorSpace, prelude::*};
+use bevy::{prelude::*};
 
 use bevy_rich_text3d::{
     //TouchTextMaterial3dPlugin, // Required for dynamic text updates
-    LoadFonts,
-    Text3d,
-    Text3dBounds,
-    Text3dPlugin,
-    TextAtlas,
+    LoadFonts, Text3d, Text3dBounds, Text3dPlugin, Text3dStyling, TextAtlas, Weight
 };
 
 use super::GameState;
@@ -67,21 +63,14 @@ fn setup(
     ));
 
     // Text on the paper
-    // commands.spawn((
-    //     //Text::new("In accordance with the determinations reached during the most recent closed procedural interval, all affected parties are advised that preliminary conditions have now been satisfied and that subsequent measures will proceed without further notice. Any variance from the established sequence, whether intentional or incidental, will be documented and reconciled under the appropriate review instruments. Stakeholders should consider this communication to constitute sufficient advisory of impending adjustments, the full scope of which will be disclosed only upon completion of the requisite confirmations."),
-    //     Text::new("In accordance with the determinations"),
-    //     TextFont {
-    //         font_size: 20.0, // Adjust size to fit your 0.6x1.0 paper
-    //         ..default()
-    //     },
-    //     TextColor(Color::BLACK),
-    //     Transform::from_translation(PAPER_POS + Vec3::Y * 0.01)
-    //         .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2))
-    //         .with_scale(Vec3::splat(0.01)), // Slight lift to sit on top
-    // ));
     commands.spawn((
         Text3d::new("In accordance with the determinations reached during the most recent closed procedural interval, all affected parties are advised that preliminary conditions have now been satisfied and that subsequent measures will proceed without further notice.\n\nAny variance from the established sequence, whether intentional or incidental, will be documented and reconciled under the appropriate review instruments. Stakeholders should consider this communication to constitute sufficient advisory of impending adjustments, the full scope of which will be disclosed only upon completion of the requisite confirmations."),
-        Text3dBounds { width: 220.0 },
+        Text3dBounds { width: 260.0 },
+        Text3dStyling {
+            font: "monospace".into(),
+            weight: Weight::BOLD,
+            ..default()
+        },
         MeshMaterial3d(materials.add(StandardMaterial {
             // Use the shared texture atlas for efficient rendering
             base_color: Color::BLACK,
@@ -89,14 +78,12 @@ fn setup(
             alpha_mode: AlphaMode::Blend,
             ..default()
         })),
-        //Transform::from_translation(PAPER_POS + Vec3::Y * 0.01) // Lift 1mm
-        //     .with_scale(Vec3::splat(0.01)),
-        Transform::from_translation(PAPER_POS + Vec3::Y * 0.01) // Lift 1mm
+        Transform::from_translation(PAPER_POS + Vec3::Y * 0.001) 
             .with_rotation(
                 Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)
                     * Quat::from_rotation_z(std::f32::consts::PI),
             )
-            .with_scale(Vec3::splat(0.0025)),
+            .with_scale(Vec3::splat(0.0022)),
         Mesh3d::default(),
     ));
 
