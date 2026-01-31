@@ -113,7 +113,7 @@ fn mouse_draw_system(
             ));
         }
             let distance = last_pos.distance(current_pos);
-            ink_supply.0 -= distance / 100.0;
+            ink_supply.0 -= distance / 50.0;
             println!("{}", ink_supply.0);
     } else {
         // First click stroke
@@ -123,6 +123,7 @@ fn mouse_draw_system(
             CANVAS_LAYER,
         ));
     }
+    ink_supply.0 -= 1.0;
 
     brush_state.last_pos = Some(current_pos);
 }
