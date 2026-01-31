@@ -24,13 +24,16 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(Update, marker_animation_change)
         .add_systems(Update, setup_scene_once_loaded)
         .add_systems(Update, update_ink_supply_meter)
-        .add_systems(Update, (pen_drop, ray_cast_system));
+        .add_systems(Update, (pen_drop, ray_cast_system))
+        .add_systems(FixedUpdate, check_refill);
 
 }
 
 // An example asset that contains a mesh and animation.
 const GLTF_PATH: &str = "models/marker_2.glb";
 const INK_MODEL_PATH: &str = "models/ink_res_dev.glb";
+pub const INK_RES_POS: Vec3 = Vec3::new(-0.5, 0.8, 1.5);
+
 
 // A component that stores a reference to an animation we want to play. This is
 // created when we start loading the mesh (see `setup_mesh_and_animation`) and
@@ -44,7 +47,7 @@ struct PenAnimations {
 }
 
 #[derive(Component)]
-pub struct InkSupplyPercent(pub f32);
+pub struct InkSupplyPercent(pub f32, pub bool);
 
 #[derive(Component)]
 struct InkSupplyMeter();
@@ -53,6 +56,9 @@ struct InkSupplyMeter();
 pub struct Marker {
     pub tip_location: Option<Vec3>,
 }
+
+#[derive(Component)]
+struct InkRes;
 
 fn create_ink_meter(
     mut commands: Commands,
@@ -85,7 +91,7 @@ fn setup_mesh_and_animation(
     let graph_handle = graphs.add(graph);
     commands.insert_resource(PenAnimations {
         animations: node_indices,
-        current_annimation: 0,
+        current_annimation: 1,
         graph_handle,
     });
 
@@ -100,7 +106,7 @@ fn setup_mesh_and_animation(
     // will trigger when the scene is loaded and spawned.
     commands.spawn((
         Marker::default(),
-        InkSupplyPercent(100.0),
+        InkSupplyPercent(100.0, false),
         mesh_scene,
         Transform::from_scale(Vec3::splat(0.03))
             .with_rotation(Quat::from_rotation_z(0.5))
@@ -108,8 +114,9 @@ fn setup_mesh_and_animation(
     ));
     // INK RES
     commands.spawn((
+        InkRes,
         ink_mesh_scene,
-        Transform::from_scale(Vec3::splat(0.05)).with_translation(Vec3::new(-0.5, 0.8, 1.5)),
+        Transform::from_scale(Vec3::new(0.1, 0.05, 0.1)).with_translation(INK_RES_POS),
     ));
 }
 
@@ -229,7 +236,7 @@ fn setup_scene_once_loaded(
         // component. The `AnimationTransitions` component wants to manage all
         // the animations and will get confused if the animations are started
         // directly via the `AnimationPlayer`.
-        transitions.play(&mut player, animations.animations[0], Duration::ZERO);
+        transitions.play(&mut player, animations.animations[1], Duration::ZERO);
 
         commands
             .entity(entity)
@@ -248,6 +255,19 @@ fn update_ink_supply_meter(
     let final_trans = Vec3{x: 0.0, y: transform.scale.y / 2.0, z: 0.0} + pen_trans.translation + (Vec3::X*0.2);
     transform.translation = final_trans;
     transform.scale.y = meter_scale
+}
+
+fn check_refill(marker_q: Single<(&Marker, &mut InkSupplyPercent)>){
+    let (marker, mut ink_supply) = marker_q.into_inner();
+    if let Some(tip_location) = marker.tip_location{
+        if tip_location.distance(INK_RES_POS) < 0.08{
+            ink_supply.0 += 1.0;
+            ink_supply.1 = true;
+        }
+        else{
+            ink_supply.1 = false;
+        }
+    }
 }
 
 fn mouse_motion_system(

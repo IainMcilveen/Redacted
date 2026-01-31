@@ -113,9 +113,13 @@ fn mouse_draw_system(
                 CANVAS_LAYER,
             ));
         }
-        let distance = last_pos.distance(current_pos);
-        ink_supply.0 -= distance / 100.0;
-        println!("{}", ink_supply.0);
+        
+        if !ink_supply.1{
+            println!("{:?}", ink_supply.0);
+            let distance = last_pos.distance(current_pos);
+            ink_supply.0 -= distance / 10.0;
+        }
+        // println!("{}", ink_supply.0);
     } else {
         // commands.trigger(SoundEvent {
         //     sound: Sounds::VineBoom,
@@ -128,7 +132,6 @@ fn mouse_draw_system(
             CANVAS_LAYER,
         ));
     }
-    ink_supply.0 -= 1.0;
 
     brush_state.last_pos = Some(current_pos);
 }
