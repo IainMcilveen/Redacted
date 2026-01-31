@@ -23,6 +23,7 @@ pub(super) fn plugin(app: &mut App) {
 
 // An example asset that contains a mesh and animation.
 const GLTF_PATH: &str = "models/marker_2.glb";
+const INK_MODEL_PATH: &str = "models/ink_res_dev.glb";
 
 // A component that stores a reference to an animation we want to play. This is
 // created when we start loading the mesh (see `setup_mesh_and_animation`) and
@@ -67,6 +68,7 @@ fn setup_mesh_and_animation(
     // SceneRoot component. This component will automatically spawn a scene
     // containing our mesh once it has loaded.
     let mesh_scene = SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset(GLTF_PATH)));
+    let ink_mesh_scene = SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset(INK_MODEL_PATH)));
 
     // Spawn an entity with our components, and connect it to an observer that
     // will trigger when the scene is loaded and spawned.
@@ -77,6 +79,14 @@ fn setup_mesh_and_animation(
             Transform::from_scale(Vec3::splat(0.03))
                 .with_rotation(Quat::from_rotation_z(0.5))
                 .with_translation(Vec3::new(0.0, 1.1, 1.0)),
+        ));
+
+    // INK RES
+    commands.
+        spawn((
+            ink_mesh_scene,
+            Transform::from_scale(Vec3::splat(0.05))
+                .with_translation(Vec3::new(-0.5, 0.8, 1.5)),
         ));
 }
 
