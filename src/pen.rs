@@ -4,6 +4,7 @@ use std::f32::consts::PI;
 use bevy::{
     input::mouse::AccumulatedMouseMotion, light::CascadeShadowConfigBuilder, prelude::*,
     scene::SceneInstanceReady,
+    color::palettes::css
 };
 
 use crate::paper::Character;
@@ -15,7 +16,7 @@ pub(super) fn plugin(app: &mut App) {
         // .add_systems(Startup, set_mouse_setting)
         .add_systems(Startup, setup_mesh_and_animation)
         .add_systems(Update, mouse_motion_system)
-        .add_systems(Update, ray_cast_system);
+        .add_systems(Update, (ray_cast_system, pen_drop));
 }
 
 // An example asset that contains a mesh and animation.
@@ -61,16 +62,17 @@ fn setup_mesh_and_animation(
         .spawn((
             animation_to_play,
             mesh_scene,
-            Transform::from_scale(Vec3::splat(0.03))
+            Transform::from_scale(Vec3::splat(0.03)).with_rotation(Quat::from_rotation_z(0.5))
             .with_translation(Vec3::new(0.0, 1.1, 1.0)),
         ))
         .observe(play_animation_when_ready);
 }
 
-fn ray_cast_system(mut raycast: MeshRayCast, pen: Single<&Transform, With<AnimationToPlay>>, q: Query<&Character>){
+fn ray_cast_system(mut raycast: MeshRayCast, pen: Single<&Transform, With<AnimationToPlay>>, q: Query<&Character>, mut gizmos: Gizmos){
     let ray = Ray3d::new(pen.translation, -Dir3::Y);
     let hits = raycast.cast_ray(ray, &MeshRayCastSettings::default());
-    for (ent, ray_mesh_hit) in hits {
+    gizmos.line(ray.origin, ray.origin - (Vec3::Y), Color::from(css::RED));
+    for (ent, _ray_mesh_hit) in hits {
         println!("{:?}", ent);
         if let Ok(character) = q.get(*ent) {
             println!("Hit a character! Value = {}", character.0);
@@ -123,6 +125,15 @@ fn set_mouse_setting(mut windows: Query<(&Window, &mut CursorOptions)>) {
         cursor_options.visible = false;
     }
 }
+
+fn pen_drop(mouse: Res<ButtonInput<MouseButton>>, mut pen: Single<&mut Transform, With<AnimationToPlay>>) {
+    if (mouse.pressed(MouseButton::Left)){
+        pen.translation.y = 0.988;
+    } else{
+        pen.translation.y = 1.1;
+    }
+}
+
 fn mouse_motion_system(
     accumulated_mouse_motion: Res<AccumulatedMouseMotion>,
     mut marker: Single<&mut Transform, With<AnimationToPlay>>,
