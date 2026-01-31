@@ -19,10 +19,13 @@ pub(super) fn plugin(app: &mut App) {
         // .add_systems(Startup, set_mouse_setting)
         .add_systems(Startup, setup_mesh_and_animation)
         .add_systems(Startup, set_mouse_setting)
+        .add_systems(Startup, create_ink_meter)
         .add_systems(Update, mouse_motion_system)
         .add_systems(Update, marker_animation_change)
         .add_systems(Update, setup_scene_once_loaded)
+        .add_systems(Update, update_ink_supply_meter)
         .add_systems(Update, (pen_drop, ray_cast_system));
+
 }
 
 // An example asset that contains a mesh and animation.
@@ -43,15 +46,32 @@ struct PenAnimations {
 #[derive(Component)]
 pub struct InkSupplyPercent(pub f32);
 
+#[derive(Component)]
+struct InkSupplyMeter();
+
 #[derive(Component, Default, Clone, Copy)]
 pub struct Marker {
     pub tip_location: Option<Vec3>,
+}
+
+fn create_ink_meter(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+){
+           commands.spawn((InkSupplyMeter(),
+        Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
+        MeshMaterial3d(materials.add(Color::from(css::YELLOW))),
+        Transform::from_xyz(0.0, 1.0, 1.0).with_scale(Vec3::splat(0.1))));
+
 }
 
 fn setup_mesh_and_animation(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut graphs: ResMut<Assets<AnimationGraph>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // Create an animation graph containing a single animation. We want the "run"
     // animation from our example asset, which has an index of two.
@@ -132,7 +152,7 @@ fn ray_cast_system(
             if character.to_redact {
                 character.is_redacted = true;
             }
-            println!("redacted?, {}", character.to_redact);
+            // println!("redacted?, {}", character.to_redact);
         }
         // println!("{:?}", hits);
     }
@@ -216,6 +236,18 @@ fn setup_scene_once_loaded(
             .insert(AnimationGraphHandle(animations.graph_handle.clone()))
             .insert(transitions);
     }
+}
+
+fn update_ink_supply_meter(
+        mut transform: Single<&mut Transform, With<InkSupplyMeter>>,
+        ink_supply: Single<&InkSupplyPercent>,
+        pen_trans: Single<&Transform, (With<Marker>, Without<InkSupplyMeter>)>
+){
+    
+    let meter_scale = ink_supply.0 * 0.3 / 100.0;
+    let final_trans = Vec3{x: 0.0, y: transform.scale.y / 2.0, z: 0.0} + pen_trans.translation + (Vec3::X*0.2);
+    transform.translation = final_trans;
+    transform.scale.y = meter_scale
 }
 
 fn mouse_motion_system(
