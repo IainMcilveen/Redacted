@@ -16,8 +16,8 @@ mod environment;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum GameState {
-    #[default]
     MENU,
+    #[default]
     PAGETEST,
     PLAYING,
 }

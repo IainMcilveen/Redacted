@@ -52,10 +52,10 @@ fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
-    glass_cracks_handles: Res<GlassCracksFolder>,
-    loaded_folders: Res<Assets<LoadedFolder>>,
+    // glass_cracks_handles: Res<GlassCracksFolder>,
+    // loaded_folders: Res<Assets<LoadedFolder>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut textures: ResMut<Assets<Image>>,
+    // mut textures: ResMut<Assets<Image>>,
 ) {
     // let glass_cracks_folder = asset_server.load_folder("textures/glass_cracks");
     // commands.insert_resource(GlassCracksFolder(glass_cracks_folder));
