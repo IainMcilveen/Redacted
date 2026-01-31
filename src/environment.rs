@@ -5,16 +5,16 @@ use bevy::asset::LoadedFolder;
 use bevy::image::{ImageAddressMode, ImageLoaderSettings, ImageSampler, ImageSamplerDescriptor};
 use bevy::math::Affine2;
 use bevy::prelude::*;
+use bevy_sprite3d::{Sprite3d, Sprite3dPlugin};
 
 use super::GameState;
+use crate::loading::GlassCracksFolder;
 
 pub const CAMERA_POS: Vec3 = Vec3::new(0.0, 1.75, 0.0);
 
-#[derive(Resource, Default)]
-struct GlassCracksFolder(Handle<LoadedFolder>);
-
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(GameState::PAGETEST), setup);
+    app.add_plugins(Sprite3dPlugin)
+        .add_systems(OnEnter(GameState::PAGETEST), setup);
 }
 
 fn create_texture_atlas(
@@ -23,6 +23,7 @@ fn create_texture_atlas(
     sampling: Option<ImageSampler>,
     textures: &mut ResMut<Assets<Image>>,
 ) -> (TextureAtlasLayout, TextureAtlasSources, Handle<Image>) {
+    println!("Creating texture atlas!");
     let mut texture_atlas_builder = TextureAtlasBuilder::default();
     texture_atlas_builder.padding(padding.unwrap_or_default());
     for handle in folder.handles.iter() {
@@ -34,11 +35,19 @@ fn create_texture_atlas(
             );
             continue;
         };
+        println!("Some Texture: {id}");
         texture_atlas_builder.add_texture(Some(id), texture);
+    }
+
+    let result = texture_atlas_builder.build();
+    if result.is_err() {
+        let error_result = result.err().unwrap();
+        println!("Error {error_result}")
     }
 
     let (texture_atlas_layout, texture_atlas_sources, texture) =
         texture_atlas_builder.build().unwrap();
+
     let texture = textures.add(texture);
 
     // Update the sampling settings of the texture atlas
@@ -48,24 +57,29 @@ fn create_texture_atlas(
     (texture_atlas_layout, texture_atlas_sources, texture)
 }
 
+fn load_textures(mut commands: Commands, asset_server: Res<AssetServer>) {
+    // Load multiple, individual sprites from a folder
+    // commands.insert_resource(RpgSpriteFolder(asset_server.load_folder("textures/rpg")));
+}
+
 fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
-    // glass_cracks_handles: Res<GlassCracksFolder>,
-    // loaded_folders: Res<Assets<LoadedFolder>>,
+    glass_cracks_handles: Res<GlassCracksFolder>,
+    loaded_folders: Res<Assets<LoadedFolder>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    // mut textures: ResMut<Assets<Image>>,
+    mut textures: ResMut<Assets<Image>>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    // let glass_cracks_folder = asset_server.load_folder("textures/glass_cracks");
-    // commands.insert_resource(GlassCracksFolder(glass_cracks_folder));
+    let (glass_cracks_layout, _sources, atlas_image) = create_texture_atlas(
+        loaded_folders.get(&glass_cracks_handles.0).unwrap(),
+        Some(UVec2::splat(2)),
+        None,
+        &mut textures,
+    );
 
-    // let (glass_cracks_layout, _sources, atlas_image) = create_texture_atlas(
-    //     loaded_folders.get(&glass_cracks_handles.0).unwrap(),
-    //     Some(UVec2::splat(2)),
-    //     None,
-    //     &mut textures,
-    // );
+    let glass_cracks_layout_handle = texture_atlas_layouts.add(glass_cracks_layout);
 
     // let glass_cracks_material_handle = materials.add(StandardMaterial {
     //     base_color_texture: Some(atlas_image.clone()),
@@ -95,10 +109,28 @@ fn setup(
     });
 
     // Wall
+    // commands.spawn((
+    //     Mesh3d(meshes.add(Plane3d::new(Vec3::NEG_Z, Vec2::new(16.0, 12.0).div(2.0)).mesh())),
+    //     MeshMaterial3d(wall_material_handle),
+    //     Transform::from_xyz(0.0, 2.0, 10.0),
+    // ));
+
     commands.spawn((
-        Mesh3d(meshes.add(Plane3d::new(Vec3::NEG_Z, Vec2::new(16.0, 12.0).div(2.0)).mesh())),
-        MeshMaterial3d(wall_material_handle),
-        Transform::from_xyz(0.0, 2.0, 10.0),
+        Sprite::from_atlas_image(
+            atlas_image,
+            TextureAtlas {
+                layout: glass_cracks_layout_handle,
+                index: 0,
+            },
+        ),
+        Sprite3d {
+            pixels_per_metre: 40.0,
+            alpha_mode: AlphaMode::Blend,
+            unlit: true,
+            // pivot: Some(Vec2::new(0.5, 0.5)),
+            ..default()
+        },
+        Transform::from_xyz(0.0, 0.0, 10.0),
     ));
 
     // Glass Cracks

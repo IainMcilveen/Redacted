@@ -6,4 +6,5 @@ edition = "2024"
 [dependencies]
 bevy = {version = "0.18.0", features = ["mesh_picking"]}
 bevy_rich_text3d = "0.6.0"
+bevy_sprite3d = "8.0.0"
 bevy_window = "0.18.0"

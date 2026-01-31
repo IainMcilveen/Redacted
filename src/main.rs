@@ -13,11 +13,13 @@ mod menu;
 mod paper;
 mod pen;
 mod environment;
+mod loading;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum GameState {
-    MENU,
     #[default]
+    LOADING,
+    MENU,
     PAGETEST,
     PLAYING,
 }
@@ -47,6 +49,7 @@ fn main() {
             default_color: Color::WHITE.into(),
         })
         .init_state::<GameState>()
+        .add_plugins(loading::plugin)
         .add_plugins(menu::plugin)
         .add_plugins(paper::plugin)
         .add_plugins(pen::plugin)
