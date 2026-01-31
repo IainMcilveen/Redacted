@@ -12,6 +12,9 @@ struct BrushState {
 #[derive(Component)]
 struct SecondaryCamera;
 
+#[derive(Component)]
+pub struct PaintPlane;
+
 const CANVAS_LAYER: RenderLayers = RenderLayers::layer(1);
 
 pub(super) fn plugin(app: &mut App) {
@@ -61,6 +64,8 @@ fn setup(
             ..default()
         })),
         Transform::from_translation(PAPER_POS + Vec3::Y * 0.002),
+        Pickable::IGNORE,
+        PaintPlane,
     ));
 }
 
@@ -76,8 +81,15 @@ fn mouse_draw_system(
     }
 
     let marker = marker_q.into_inner();
-    let local_x = marker.tip_location.x;
-    let local_z = marker.tip_location.z - PAPER_POS.z;
+    let location: Vec3;
+    if let Some(val) = marker.tip_location {
+        location = val;
+    } else {
+        return;
+    }
+
+    let local_x = location.x;
+    let local_z = location.z - PAPER_POS.z;
 
     // Map to Texture Coordinates (0.6 world units = 600px -> Scale 1000)
     // We negate local_z so that moving the mouse "forward" (+Z) maps correctly to the 2D canvas
