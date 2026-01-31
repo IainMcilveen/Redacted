@@ -80,11 +80,10 @@ fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 align_items: AlignItems::Center,
                 ..default()
             },
-            BackgroundColor(SUB_COLOR),
             children![
                 // Display the game name
                 (
-                    Text::new("Some Mask Themed Game"),
+                    Text::new("REDACTED"),
                     TextFont {
                         font_size: 67.0,
                         ..default()
