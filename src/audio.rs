@@ -1,14 +1,12 @@
 use bevy::{platform::collections::HashMap, prelude::*};
 
 #[derive(Debug, Hash, PartialEq, Eq, Copy, Clone)]
-enum Sounds {
+pub enum Sounds {
     VineBoom,
 }
 
 #[derive(Event)]
-pub struct SoundEvent {
-    sound: Sounds,
-}
+pub struct SoundEvent(pub Sounds);
 
 #[derive(Resource, Default, Deref)]
 struct SoundBank {
@@ -25,13 +23,13 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
     sound_bank
         .sounds
-        .insert(Sounds::VineBoom, asset_server.load("audio/vine-boom.mp3"));
+        .insert(Sounds::VineBoom, asset_server.load("audio/vine-boom.ogg"));
 
     commands.insert_resource(sound_bank);
 }
 
 fn play_sound(event: On<SoundEvent>, mut commands: Commands, sound_bank: Res<SoundBank>) {
-    if let Some(handle) = sound_bank.sounds.get(&event.sound) {
-        commands.spawn(AudioPlayer::new(handle.clone()));
+    if let Some(handle) = sound_bank.get(&event.0.clone()) {
+        commands.spawn((AudioPlayer::new(handle.clone()), PlaybackSettings::DESPAWN));
     }
 }
