@@ -36,6 +36,9 @@ struct PenAnimations {
     graph_handle: Handle<AnimationGraph>,
 }
 
+#[derive(Component)]
+pub struct InkSupplyPercent(pub f32);
+
 #[derive(Component, Default, Clone, Copy)]
 pub struct Marker {
     pub tip_location: Option<Vec3>,
@@ -72,6 +75,7 @@ fn setup_mesh_and_animation(
     // will trigger when the scene is loaded and spawned.
     commands.spawn((
         Marker::default(),
+        InkSupplyPercent(100.0),
         mesh_scene,
         Transform::from_scale(Vec3::splat(0.03))
             .with_rotation(Quat::from_rotation_z(0.5))
@@ -137,7 +141,7 @@ fn set_mouse_setting(mut windows: Query<(&Window, &mut CursorOptions)>) {
             continue;
         }
 
-        //cursor_options.grab_mode = CursorGrabMode::Locked;
+        cursor_options.grab_mode = CursorGrabMode::Locked;
         cursor_options.visible = false;
     }
 }
@@ -156,7 +160,6 @@ fn marker_animation_change(
     mut animations: ResMut<PenAnimations>,
 ) {
     for (mut player, mut transitions) in &mut animation_players {
-        println!("FUND PLAYERS");
         let Some((&playing_animation_index, _)) = player.playing_animations().next() else {
             continue;
         };

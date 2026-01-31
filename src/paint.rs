@@ -2,7 +2,7 @@ use bevy::camera::RenderTarget;
 use bevy::{camera::visibility::RenderLayers, prelude::*, render::render_resource::TextureFormat};
 
 use crate::paper::PAPER_POS;
-use crate::pen::{Marker};
+use crate::pen::{InkSupplyPercent, Marker};
 
 #[derive(Resource, Default)]
 struct BrushState {
@@ -71,7 +71,7 @@ fn setup(
 
 fn mouse_draw_system(
     buttons: Res<ButtonInput<MouseButton>>,
-    marker_q: Single<&Marker, With<Marker>>,
+    marker_q:Single<(&Marker, &mut InkSupplyPercent), With<Marker>>,
     mut brush_state: ResMut<BrushState>,
     mut commands: Commands,
 ) {
@@ -80,7 +80,7 @@ fn mouse_draw_system(
         return;
     }
 
-    let marker = marker_q.into_inner();
+    let (marker, mut ink_supply) = marker_q.into_inner();
     let location: Vec3;
     if let Some(val) = marker.tip_location {
         location = val;
@@ -112,6 +112,9 @@ fn mouse_draw_system(
                 CANVAS_LAYER,
             ));
         }
+            let distance = last_pos.distance(current_pos);
+            ink_supply.0 -= distance / 100.0;
+            println!("{}", ink_supply.0);
     } else {
         // First click stroke
         commands.spawn((
