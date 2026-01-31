@@ -14,11 +14,14 @@ mod menu;
 mod paint;
 mod paper;
 mod pen;
+mod environment;
+mod loading;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum GameState {
-    MENU,
     #[default]
+    LOADING,
+    MENU,
     PAGETEST,
     PLAYING,
 }
@@ -49,6 +52,7 @@ fn main() {
         })
         .add_plugins(MeshPickingPlugin)
         .init_state::<GameState>()
+        .add_plugins(loading::plugin)
         .add_plugins(menu::plugin)
         .add_plugins(paper::plugin)
         .add_plugins(pen::plugin)

@@ -1314,6 +1314,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_sprite3d"
+version = "8.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f4d48211f81bf10733ae4b4e90311a62b3ec72f2a80d100ad24be78676d7ecc5"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_sprite_render"
 version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2504,6 +2513,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy_rich_text3d",
+ "bevy_sprite3d",
  "bevy_window",
 ]
 
