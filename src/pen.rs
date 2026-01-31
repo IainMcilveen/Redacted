@@ -2,12 +2,11 @@ use bevy_window::{CursorGrabMode, CursorOptions, Window};
 use std::f32::consts::PI;
 
 use bevy::{
-    input::mouse::AccumulatedMouseMotion, light::CascadeShadowConfigBuilder, prelude::*,
-    scene::SceneInstanceReady,
-    color::palettes::css
+    color::palettes::css, input::mouse::AccumulatedMouseMotion, light::CascadeShadowConfigBuilder,
+    prelude::*, scene::SceneInstanceReady,
 };
 
-use crate::paper::{Character};
+use crate::paper::Character;
 
 use super::GameState;
 
@@ -15,7 +14,7 @@ pub(super) fn plugin(app: &mut App) {
     app
         // .add_systems(Startup, set_mouse_setting)
         .add_systems(Startup, setup_mesh_and_animation)
-        // .add_systems(Startup, set_mouse_setting)
+        .add_systems(Startup, set_mouse_setting)
         .add_systems(Update, mouse_motion_system)
         .add_systems(Update, (ray_cast_system, pen_drop));
 }
@@ -27,9 +26,14 @@ const GLTF_PATH: &str = "models/marker_1.glb";
 // created when we start loading the mesh (see `setup_mesh_and_animation`) and
 // read when the mesh has spawned (see `play_animation_once_loaded`).
 #[derive(Component)]
-struct AnimationToPlay {
+pub struct AnimationToPlay {
     graph_handle: Handle<AnimationGraph>,
     index: AnimationNodeIndex,
+}
+
+#[derive(Component, Default, Clone, Copy)]
+pub struct Marker {
+    pub tip_location: Vec3,
 }
 
 fn setup_mesh_and_animation(
@@ -61,24 +65,37 @@ fn setup_mesh_and_animation(
     // will trigger when the scene is loaded and spawned.
     commands
         .spawn((
+            Marker::default(),
             animation_to_play,
             mesh_scene,
-            Transform::from_scale(Vec3::splat(0.03)).with_rotation(Quat::from_rotation_z(0.5))
-            .with_translation(Vec3::new(0.0, 1.1, 1.0)),
+            Transform::from_scale(Vec3::splat(0.03))
+                .with_rotation(Quat::from_rotation_z(0.5))
+                .with_translation(Vec3::new(0.0, 1.1, 1.0)),
         ))
         .observe(play_animation_when_ready);
 }
 
-fn ray_cast_system(mut raycast: MeshRayCast, pen: Single<&Transform, With<AnimationToPlay>>, mut q: Query<&mut Character>, mut gizmos: Gizmos){
+fn ray_cast_system(
+    mut raycast: MeshRayCast,
+    mut pen_q: Single<(&Transform, &mut Marker), With<AnimationToPlay>>,
+    mut q: Query<&mut Character>,
+    mut gizmos: Gizmos,
+) {
+    let pen_transform = pen_q.0;
+    let mut marker = pen_q.1.reborrow();
     let rot = Quat::from_rotation_z(0.5);
     let dir_vec = rot * Vec3::NEG_Y;
-    let ray = Ray3d::new(pen.translation, Dir3::new(dir_vec).unwrap());
+    let ray = Ray3d::new(pen_transform.translation, Dir3::new(dir_vec).unwrap());
     let hits = raycast.cast_ray(ray, &MeshRayCastSettings::default());
     gizmos.line(ray.origin, ray.origin + dir_vec, Color::from(css::RED));
-    for (ent, _ray_mesh_hit) in hits {
-        println!("{:?}", ent);
+    for (ent, ray_mesh_hit) in hits {
+        //println!("{:?}", ent);
+
+        // update marker tip location for painting
+        marker.tip_location = ray_mesh_hit.point;
+
         if let Ok(mut character) = q.get_mut(*ent) {
-            if character.to_redact{
+            if character.to_redact {
                 character.is_redacted = true;
             }
             println!("redacted?, {}", character.to_redact);
@@ -132,10 +149,13 @@ fn set_mouse_setting(mut windows: Query<(&Window, &mut CursorOptions)>) {
     }
 }
 
-fn pen_drop(mouse: Res<ButtonInput<MouseButton>>, mut pen: Single<&mut Transform, With<AnimationToPlay>>) {
-    if (mouse.pressed(MouseButton::Left)){
+fn pen_drop(
+    mouse: Res<ButtonInput<MouseButton>>,
+    mut pen: Single<&mut Transform, With<AnimationToPlay>>,
+) {
+    if (mouse.pressed(MouseButton::Left)) {
         pen.translation.y = 0.988;
-    } else{
+    } else {
         pen.translation.y = 1.1;
     }
 }
@@ -148,9 +168,9 @@ fn mouse_motion_system(
     if delta != Vec2::ZERO {
         // println!("{:?}", delta);
         marker.translation += Vec3 {
-            x: -delta.x/400.0,
+            x: -delta.x / 400.0,
             y: 0.0,
-            z: -delta.y/400.0,
+            z: -delta.y / 400.0,
         };
         // println!("{:?}", marker.translation);
     }
