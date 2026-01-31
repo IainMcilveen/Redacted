@@ -6,7 +6,11 @@ use bevy::{
     prelude::*, scene::SceneInstanceReady, time::common_conditions::once_after_real_delay,
 };
 
-use crate::{paint::PaintPlane, paper::Character};
+use crate::{
+    audio::{SoundEvent, Sounds, StopLoopEvent},
+    paint::PaintPlane,
+    paper::Character,
+};
 
 use super::GameState;
 
@@ -69,7 +73,8 @@ fn setup_mesh_and_animation(
     // SceneRoot component. This component will automatically spawn a scene
     // containing our mesh once it has loaded.
     let mesh_scene = SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset(GLTF_PATH)));
-    let ink_mesh_scene = SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset(INK_MODEL_PATH)));
+    let ink_mesh_scene =
+        SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset(INK_MODEL_PATH)));
 
     // Spawn an entity with our components, and connect it to an observer that
     // will trigger when the scene is loaded and spawned.
@@ -81,13 +86,11 @@ fn setup_mesh_and_animation(
             .with_rotation(Quat::from_rotation_z(0.5))
             .with_translation(Vec3::new(0.0, 1.1, 1.0)),
     ));
-        // INK RES
-    commands.
-        spawn((
-            ink_mesh_scene,
-            Transform::from_scale(Vec3::splat(0.05))
-                .with_translation(Vec3::new(-0.5, 0.8, 1.5)),
-        ));
+    // INK RES
+    commands.spawn((
+        ink_mesh_scene,
+        Transform::from_scale(Vec3::splat(0.05)).with_translation(Vec3::new(-0.5, 0.8, 1.5)),
+    ));
 }
 
 fn ray_cast_system(
@@ -146,7 +149,24 @@ fn set_mouse_setting(mut windows: Query<(&Window, &mut CursorOptions)>) {
     }
 }
 
-fn pen_drop(mouse: Res<ButtonInput<MouseButton>>, mut pen: Single<&mut Transform, With<Marker>>) {
+fn pen_drop(
+    mut commands: Commands,
+    mouse: Res<ButtonInput<MouseButton>>,
+    mut pen: Single<&mut Transform, With<Marker>>,
+) {
+    // start looping audio if pen dropped
+    if mouse.just_pressed(MouseButton::Left) {
+        commands.trigger(SoundEvent {
+            sound: Sounds::MarkerDrag,
+            setting: PlaybackSettings::LOOP,
+        });
+    }
+
+    // stop looping audio if pen raised
+    if mouse.just_released(MouseButton::Left) {
+        commands.trigger(StopLoopEvent(Sounds::MarkerDrag));
+    }
+
     if mouse.pressed(MouseButton::Left) {
         pen.translation.y = 0.988;
     } else {
