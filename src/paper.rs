@@ -21,7 +21,7 @@ pub struct Page {
     pub total_chars: u32,
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct Character {
     pub to_redact: bool,
     pub is_redacted: bool,

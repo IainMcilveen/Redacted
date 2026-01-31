@@ -6,7 +6,7 @@ use bevy::{
     prelude::*, scene::SceneInstanceReady, time::common_conditions::once_after_real_delay,
 };
 
-use crate::paper::Character;
+use crate::{paint::PaintPlane, paper::Character};
 
 use super::GameState;
 
@@ -18,7 +18,7 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(Update, mouse_motion_system)
         .add_systems(Update, marker_animation_change)
         .add_systems(Update, setup_scene_once_loaded)
-        .add_systems(Update, (ray_cast_system, pen_drop));
+        .add_systems(Update, (pen_drop, ray_cast_system));
 }
 
 // An example asset that contains a mesh and animation.
@@ -28,9 +28,8 @@ const GLTF_PATH: &str = "models/marker_2.glb";
 // created when we start loading the mesh (see `setup_mesh_and_animation`) and
 // read when the mesh has spawned (see `play_animation_once_loaded`).
 
-
 #[derive(Resource)]
-struct PenAnimations{
+struct PenAnimations {
     animations: Vec<AnimationNodeIndex>,
     current_annimation: usize,
     graph_handle: Handle<AnimationGraph>,
@@ -38,7 +37,7 @@ struct PenAnimations{
 
 #[derive(Component, Default, Clone, Copy)]
 pub struct Marker {
-    pub tip_location: Vec3,
+    pub tip_location: Option<Vec3>,
 }
 
 fn setup_mesh_and_animation(
@@ -51,8 +50,7 @@ fn setup_mesh_and_animation(
     let (graph, node_indices) = AnimationGraph::from_clips([
         asset_server.load(GltfAssetLabel::Animation(0).from_asset(GLTF_PATH)),
         asset_server.load(GltfAssetLabel::Animation(1).from_asset(GLTF_PATH)),
-    ]
-    );
+    ]);
 
     // Store the animation graph as an asset.
 
@@ -70,34 +68,49 @@ fn setup_mesh_and_animation(
 
     // Spawn an entity with our components, and connect it to an observer that
     // will trigger when the scene is loaded and spawned.
-    commands
-        .spawn((
-            Marker::default(),
-            mesh_scene,
-            Transform::from_scale(Vec3::splat(0.03))
-                .with_rotation(Quat::from_rotation_z(0.5))
-                .with_translation(Vec3::new(0.0, 1.1, 1.0)),
-        ));
+    commands.spawn((
+        Marker::default(),
+        mesh_scene,
+        Transform::from_scale(Vec3::splat(0.03))
+            .with_rotation(Quat::from_rotation_z(0.5))
+            .with_translation(Vec3::new(0.0, 1.1, 1.0)),
+    ));
 }
 
 fn ray_cast_system(
     mut raycast: MeshRayCast,
     mut pen_q: Single<(&Transform, &mut Marker), With<Marker>>,
     mut q: Query<&mut Character>,
+    ignore_q: Query<Entity, With<PaintPlane>>,
     mut gizmos: Gizmos,
+    mouse: Res<ButtonInput<MouseButton>>,
 ) {
+    // marker query
     let pen_transform = pen_q.0;
     let mut marker = pen_q.1.reborrow();
+
+    // Only check for redacts when pressing left mouse button
+    // Otherwise clear tip location
+    if !mouse.pressed(MouseButton::Left) {
+        marker.tip_location = None;
+        return;
+    }
+
+    // setup ray cast with marker rotation
+    // make sure that the drawing plane gets filtered out
     let rot = Quat::from_rotation_z(0.5);
     let dir_vec = rot * Vec3::NEG_Y;
     let ray = Ray3d::new(pen_transform.translation, Dir3::new(dir_vec).unwrap());
-    let hits = raycast.cast_ray(ray, &MeshRayCastSettings::default());
+    let filter = |entity| !ignore_q.contains(entity);
+    let settings = MeshRayCastSettings::default().with_filter(&filter);
+    let hits = raycast.cast_ray(ray, &settings);
     gizmos.line(ray.origin, ray.origin + dir_vec, Color::from(css::RED));
+
     for (ent, ray_mesh_hit) in hits {
         //println!("{:?}", ent);
 
         // update marker tip location for painting
-        marker.tip_location = ray_mesh_hit.point;
+        marker.tip_location = Some(ray_mesh_hit.point);
 
         if let Ok(mut character) = q.get_mut(*ent) {
             if character.to_redact {
@@ -109,23 +122,19 @@ fn ray_cast_system(
     }
 }
 
-
 fn set_mouse_setting(mut windows: Query<(&Window, &mut CursorOptions)>) {
     for (window, mut cursor_options) in &mut windows {
         if !window.focused {
             continue;
         }
 
-        cursor_options.grab_mode = CursorGrabMode::Locked;
+        //cursor_options.grab_mode = CursorGrabMode::Locked;
         cursor_options.visible = false;
     }
 }
 
-fn pen_drop(
-    mouse: Res<ButtonInput<MouseButton>>,
-    mut pen: Single<&mut Transform, With<Marker>>,
-) {
-    if (mouse.pressed(MouseButton::Left)) {
+fn pen_drop(mouse: Res<ButtonInput<MouseButton>>, mut pen: Single<&mut Transform, With<Marker>>) {
+    if mouse.pressed(MouseButton::Left) {
         pen.translation.y = 0.988;
     } else {
         pen.translation.y = 1.1;
@@ -136,24 +145,23 @@ fn marker_animation_change(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut animation_players: Query<(&mut AnimationPlayer, &mut AnimationTransitions)>,
     mut animations: ResMut<PenAnimations>,
-){
-     for (mut player, mut transitions) in &mut animation_players {
+) {
+    for (mut player, mut transitions) in &mut animation_players {
         println!("FUND PLAYERS");
         let Some((&playing_animation_index, _)) = player.playing_animations().next() else {
             continue;
         };
         if keyboard_input.just_pressed(KeyCode::Enter) {
             println!("Change?");
-            animations.current_annimation = (animations.current_annimation + 1) % animations.animations.len();
+            animations.current_annimation =
+                (animations.current_annimation + 1) % animations.animations.len();
 
-            transitions
-                .play(
-                    &mut player,
-                    animations.animations[animations.current_annimation],
-                    Duration::from_millis(1),
-                );
+            transitions.play(
+                &mut player,
+                animations.animations[animations.current_annimation],
+                Duration::from_millis(1),
+            );
         }
-
     }
 }
 
@@ -169,8 +177,7 @@ fn setup_scene_once_loaded(
         // component. The `AnimationTransitions` component wants to manage all
         // the animations and will get confused if the animations are started
         // directly via the `AnimationPlayer`.
-        transitions
-            .play(&mut player, animations.animations[0], Duration::ZERO);
+        transitions.play(&mut player, animations.animations[0], Duration::ZERO);
 
         commands
             .entity(entity)
