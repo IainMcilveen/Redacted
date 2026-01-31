@@ -117,7 +117,10 @@ fn mouse_draw_system(
         ink_supply.0 -= distance / 100.0;
         println!("{}", ink_supply.0);
     } else {
-        commands.trigger(SoundEvent(Sounds::VineBoom.clone()));
+        // commands.trigger(SoundEvent {
+        //     sound: Sounds::VineBoom,
+        //     setting: PlaybackSettings::DESPAWN,
+        // });
         // First click stroke
         commands.spawn((
             Sprite::from_color(Color::srgb(1.0, 0.0, 0.0), Vec2::splat(15.0)),

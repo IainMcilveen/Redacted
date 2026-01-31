@@ -1,3 +1,5 @@
+use bevy::image::{ImageAddressMode, ImageLoaderSettings, ImageSampler, ImageSamplerDescriptor};
+use bevy::math::Affine2;
 use bevy::prelude::*;
 use bevy_sprite3d::{Sprite3d, Sprite3dPlugin};
 
