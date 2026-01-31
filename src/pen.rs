@@ -6,12 +6,16 @@ use bevy::{
     scene::SceneInstanceReady,
 };
 
+use crate::paper::Character;
+
 use super::GameState;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(Startup, set_mouse_setting)
+    app
+        // .add_systems(Startup, set_mouse_setting)
         .add_systems(Startup, setup_mesh_and_animation)
-        .add_systems(Update, mouse_motion_system);
+        .add_systems(Update, mouse_motion_system)
+        .add_systems(Update, ray_cast_system);
 }
 
 // An example asset that contains a mesh and animation.
@@ -61,6 +65,18 @@ fn setup_mesh_and_animation(
             .with_translation(Vec3::new(0.0, 1.1, 1.0)),
         ))
         .observe(play_animation_when_ready);
+}
+
+fn ray_cast_system(mut raycast: MeshRayCast, pen: Single<&Transform, With<AnimationToPlay>>, q: Query<&Character>){
+    let ray = Ray3d::new(pen.translation, -Dir3::Y);
+    let hits = raycast.cast_ray(ray, &MeshRayCastSettings::default());
+    for (ent, ray_mesh_hit) in hits {
+        println!("{:?}", ent);
+        if let Ok(character) = q.get(*ent) {
+            println!("Hit a character! Value = {}", character.0);
+        }
+        // println!("{:?}", hits);
+    }
 }
 
 fn play_animation_when_ready(
@@ -119,6 +135,6 @@ fn mouse_motion_system(
             y: 0.0,
             z: -delta.y/200.0,
         };
-        println!("{:?}", marker.translation);
+        // println!("{:?}", marker.translation);
     }
 }
