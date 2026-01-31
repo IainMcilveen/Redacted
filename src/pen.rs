@@ -7,7 +7,7 @@ use bevy::{
     color::palettes::css
 };
 
-use crate::paper::Character;
+use crate::paper::{Character};
 
 use super::GameState;
 
@@ -15,6 +15,7 @@ pub(super) fn plugin(app: &mut App) {
     app
         // .add_systems(Startup, set_mouse_setting)
         .add_systems(Startup, setup_mesh_and_animation)
+        // .add_systems(Startup, set_mouse_setting)
         .add_systems(Update, mouse_motion_system)
         .add_systems(Update, (ray_cast_system, pen_drop));
 }
@@ -68,7 +69,7 @@ fn setup_mesh_and_animation(
         .observe(play_animation_when_ready);
 }
 
-fn ray_cast_system(mut raycast: MeshRayCast, pen: Single<&Transform, With<AnimationToPlay>>, q: Query<&Character>, mut gizmos: Gizmos){
+fn ray_cast_system(mut raycast: MeshRayCast, pen: Single<&Transform, With<AnimationToPlay>>, mut q: Query<&mut Character>, mut gizmos: Gizmos){
     let rot = Quat::from_rotation_z(0.5);
     let dir_vec = rot * Vec3::NEG_Y;
     let ray = Ray3d::new(pen.translation, Dir3::new(dir_vec).unwrap());
@@ -76,8 +77,11 @@ fn ray_cast_system(mut raycast: MeshRayCast, pen: Single<&Transform, With<Animat
     gizmos.line(ray.origin, ray.origin + dir_vec, Color::from(css::RED));
     for (ent, _ray_mesh_hit) in hits {
         println!("{:?}", ent);
-        if let Ok(character) = q.get(*ent) {
-            println!("Hit a character! Value = {}", character.0);
+        if let Ok(mut character) = q.get_mut(*ent) {
+            if character.to_redact{
+                character.is_redacted = true;
+            }
+            println!("redacted?, {}", character.to_redact);
         }
         // println!("{:?}", hits);
     }
@@ -144,9 +148,9 @@ fn mouse_motion_system(
     if delta != Vec2::ZERO {
         // println!("{:?}", delta);
         marker.translation += Vec3 {
-            x: -delta.x/200.0,
+            x: -delta.x/400.0,
             y: 0.0,
-            z: -delta.y/200.0,
+            z: -delta.y/400.0,
         };
         // println!("{:?}", marker.translation);
     }
