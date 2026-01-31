@@ -8,6 +8,8 @@ use bevy::prelude::*;
 
 use super::GameState;
 
+pub const CAMERA_POS: Vec3 = Vec3::new(0.0, 1.75, 0.0);
+
 #[derive(Resource, Default)]
 struct GlassCracksFolder(Handle<LoadedFolder>);
 

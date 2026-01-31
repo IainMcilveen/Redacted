@@ -21,11 +21,10 @@ pub struct Page {
     pub total_chars: u32,
 }
 
-
 #[derive(Component)]
-pub struct Character{
+pub struct Character {
     pub to_redact: bool,
-    pub is_redacted: bool
+    pub is_redacted: bool,
 }
 
 #[derive(Resource, Default)]
@@ -51,16 +50,28 @@ pub(super) fn plugin(app: &mut App) {
     // );
 }
 
-fn check_redacted(page_q: Query<&Character>){
-    let total_redacted: i32 = page_q.iter().map(|item| if item.is_redacted {1} else {0}).sum();
-    let to_redact: i32 = page_q.iter().map(|item| if item.to_redact & !item.is_redacted {1} else {0}).sum();
+fn check_redacted(page_q: Query<&Character>) {
+    let total_redacted: i32 = page_q
+        .iter()
+        .map(|item| if item.is_redacted { 1 } else { 0 })
+        .sum();
+    let to_redact: i32 = page_q
+        .iter()
+        .map(|item| {
+            if item.to_redact & !item.is_redacted {
+                1
+            } else {
+                0
+            }
+        })
+        .sum();
     // for character in page_q.iter() {
-        
+
     // }
     println!("is_redacted: {}, to_redact: {}", total_redacted, to_redact);
 }
 
-const PAPER_POS: Vec3 = Vec3::new(0.0, 0.8, 1.0);
+pub const PAPER_POS: Vec3 = Vec3::new(0.0, 0.8, 1.0);
 
 fn setup(
     mut commands: Commands,
@@ -95,11 +106,10 @@ fn setup(
         for c in word_string.chars() {
             if c == '<' {
                 to_redact = true;
-                continue
-            }
-            else if c == '>' {
+                continue;
+            } else if c == '>' {
                 to_redact = false;
-                continue
+                continue;
             }
             commands.spawn((
                 Text3d::new(c),
@@ -136,10 +146,10 @@ fn setup(
                 )
                 .with_scale(Vec3::splat(0.0022)),
                 Mesh3d::default(),
-                Character{
+                Character {
                     to_redact: to_redact,
-                    is_redacted: false
-                }
+                    is_redacted: false,
+                },
             ));
             if to_redact {
                 total_to_redact += 1;
@@ -150,18 +160,17 @@ fn setup(
         col += 1;
     }
 
-
     // Paper
     commands.spawn((
         Mesh3d(meshes.add(Plane3d::default().mesh().size(0.6, 1.0))),
         MeshMaterial3d(materials.add(Color::WHITE)),
         Transform::from_translation(PAPER_POS),
-        Page{
+        Page {
             is_redacted: 0,
             to_redact: total_to_redact,
             total_chars: total_chars,
-            text: page_string.into()
-        }
+            text: page_string.into(),
+        },
     ));
 
     // commands.spawn((
