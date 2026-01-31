@@ -1,6 +1,7 @@
 use bevy::camera::RenderTarget;
 use bevy::{camera::visibility::RenderLayers, prelude::*, render::render_resource::TextureFormat};
 
+use crate::audio::{SoundEvent, Sounds};
 use crate::paper::PAPER_POS;
 use crate::pen::{InkSupplyPercent, Marker};
 
@@ -71,7 +72,7 @@ fn setup(
 
 fn mouse_draw_system(
     buttons: Res<ButtonInput<MouseButton>>,
-    marker_q:Single<(&Marker, &mut InkSupplyPercent), With<Marker>>,
+    marker_q: Single<(&Marker, &mut InkSupplyPercent), With<Marker>>,
     mut brush_state: ResMut<BrushState>,
     mut commands: Commands,
 ) {
@@ -112,10 +113,11 @@ fn mouse_draw_system(
                 CANVAS_LAYER,
             ));
         }
-            let distance = last_pos.distance(current_pos);
-            ink_supply.0 -= distance / 50.0;
-            println!("{}", ink_supply.0);
+        let distance = last_pos.distance(current_pos);
+        ink_supply.0 -= distance / 100.0;
+        println!("{}", ink_supply.0);
     } else {
+        commands.trigger(SoundEvent(Sounds::VineBoom.clone()));
         // First click stroke
         commands.spawn((
             Sprite::from_color(Color::srgb(1.0, 0.0, 0.0), Vec2::splat(15.0)),
