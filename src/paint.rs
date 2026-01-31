@@ -1,7 +1,8 @@
 use bevy::camera::RenderTarget;
 use bevy::{camera::visibility::RenderLayers, prelude::*, render::render_resource::TextureFormat};
 
-use crate::paper::{CAMERA_POS, PAPER_POS};
+use crate::environment::CAMERA_POS;
+use crate::paper::PAPER_POS;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Startup, setup)
