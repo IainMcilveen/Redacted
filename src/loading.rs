@@ -6,6 +6,7 @@ use crate::GameState;
 pub struct GameAssets {
     pub wall: Handle<Image>,
     pub glass_cracks: Vec<Handle<Image>>,
+    pub mob_sprites: Vec<Handle<Image>>
 }
 
 pub(super) fn plugin(app: &mut App) {
@@ -27,7 +28,13 @@ fn load(mut commands: Commands, asset_server: Res<AssetServer>) {
             asset_server.load("textures/glass_cracks/glass_cracks8.png"),
             asset_server.load("textures/glass_cracks/glass_cracks9.png"),
             asset_server.load("textures/glass_cracks/glass_cracks10.png"),
-            asset_server.load("textures/glass_cracks/glass_cracks11.png")
+            asset_server.load("textures/glass_cracks/glass_cracks11.png"),
+        ],
+        mob_sprites: vec![
+            asset_server.load("textures/mob/mob1.png"),
+            asset_server.load("textures/mob/mob2.png"),
+            asset_server.load("textures/mob/mob3.png"),
+            asset_server.load("textures/mob/mob4.png"),
         ],
     });
 }

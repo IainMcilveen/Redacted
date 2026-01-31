@@ -14,7 +14,7 @@ mod menu;
 mod paint;
 mod paper;
 mod pen;
-mod environment;
+mod mob;
 mod loading;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
@@ -55,6 +55,7 @@ fn main() {
         .add_plugins(loading::plugin)
         .add_plugins(menu::plugin)
         .add_plugins(paper::plugin)
+        .add_plugins(mob::plugin)
         .add_plugins(pen::plugin)
         .add_plugins(environment::plugin)
         .add_plugins(paint::plugin)
