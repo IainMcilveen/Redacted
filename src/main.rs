@@ -9,6 +9,7 @@ use bevy::{
     },
 };
 
+mod audio;
 mod environment;
 mod menu;
 mod paint;
@@ -52,6 +53,7 @@ fn main() {
         })
         .add_plugins(MeshPickingPlugin)
         .init_state::<GameState>()
+        .add_plugins(audio::plugin)
         .add_plugins(loading::plugin)
         .add_plugins(menu::plugin)
         .add_plugins(paper::plugin)
