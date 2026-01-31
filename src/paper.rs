@@ -1,8 +1,14 @@
-use bevy::{ecs::event::Trigger,picking::events::Click, picking::events::Pointer ,prelude::*};
+use bevy::{ecs::event::Trigger, picking::events::Click, picking::events::Pointer, prelude::*};
 
 use bevy_rich_text3d::{
     //TouchTextMaterial3dPlugin, // Required for dynamic text updates
-    LoadFonts, Text3d, Text3dBounds, Text3dPlugin, Text3dStyling, TextAtlas, Weight
+    LoadFonts,
+    Text3d,
+    Text3dBounds,
+    Text3dPlugin,
+    Text3dStyling,
+    TextAtlas,
+    Weight,
 };
 
 use super::GameState;
@@ -14,8 +20,6 @@ struct Page {
 
 #[derive(Component)]
 pub struct Character(pub bool);
-
-
 
 #[derive(Resource, Default)]
 struct Game {
@@ -46,20 +50,6 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Floor
-    commands.spawn((
-        Mesh3d(meshes.add(Plane3d::default().mesh().size(25.0, 25.0))),
-        MeshMaterial3d(materials.add(Color::srgb(0.7, 0.8, 0.9))),
-        Transform::from_xyz(0.0, 0.0, 0.0),
-    ));
-
-    // // Desk
-    commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(2.0, 0.1, 1.5))),
-        MeshMaterial3d(materials.add(Color::srgb(0.4, 0.25, 0.15))),
-        Transform::from_xyz(0.0, 0.70, 1.0),
-    ));
-
     // Paper
     commands.spawn((
         Mesh3d(meshes.add(Plane3d::default().mesh().size(0.6, 1.0))),
@@ -68,7 +58,9 @@ fn setup(
     ));
 
     // Text on the paper
-    let text = String::from("Hello World The quick brown fox jumped over the lazy dog. Well you found me, was it worth it, because depsite your violent behaviour the only thing you've managed to break so far is my heart.");
+    let text = String::from(
+        "Hello World The quick brown fox jumped over the lazy dog. Well you found me, was it worth it, because depsite your violent behaviour the only thing you've managed to break so far is my heart.",
+    );
     let x_offset = 0.022;
     let y_offset = 0.032;
     let mut row = 0;
@@ -76,7 +68,7 @@ fn setup(
     let max_length = 25;
     for word in text.split(" ") {
         let word_string = word.to_string();
-        if col + word_string.len() > max_length{
+        if col + word_string.len() > max_length {
             row += 1;
             col = 0;
         }
@@ -97,20 +89,31 @@ fn setup(
                     alpha_mode: AlphaMode::Blend,
                     ..default()
                 })),
-                Transform::from_translation(((PAPER_POS + Vec3{x: 0.25, y: 0.0, z: 0.4}) + Vec3::Y * 0.001 - (Vec3{x: x_offset*col as f32, y: 0.0, z: y_offset*row as f32}))) 
-                    .with_rotation(
-                        Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)
-                            * Quat::from_rotation_z(std::f32::consts::PI),
-                    )
-                    .with_scale(Vec3::splat(0.0022)),
+                Transform::from_translation(
+                    ((PAPER_POS
+                        + Vec3 {
+                            x: 0.25,
+                            y: 0.0,
+                            z: 0.4,
+                        })
+                        + Vec3::Y * 0.001
+                        - (Vec3 {
+                            x: x_offset * col as f32,
+                            y: 0.0,
+                            z: y_offset * row as f32,
+                        })),
+                )
+                .with_rotation(
+                    Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)
+                        * Quat::from_rotation_z(std::f32::consts::PI),
+                )
+                .with_scale(Vec3::splat(0.0022)),
                 Mesh3d::default(),
-                Character(c == 'e')
+                Character(c == 'e'),
             ));
             col += 1;
         }
         col += 1;
-
-
     }
 
     // commands.spawn((
@@ -128,7 +131,7 @@ fn setup(
     //         alpha_mode: AlphaMode::Blend,
     //         ..default()
     //     })),
-    //     Transform::from_translation(PAPER_POS + Vec3::Y * 0.001) 
+    //     Transform::from_translation(PAPER_POS + Vec3::Y * 0.001)
     //         .with_rotation(
     //             Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)
     //                 * Quat::from_rotation_z(std::f32::consts::PI),
@@ -136,20 +139,4 @@ fn setup(
     //         .with_scale(Vec3::splat(0.0022)),
     //     Mesh3d::default(),
     // ));
-
-    // Light
-    commands.spawn((
-        PointLight {
-            shadows_enabled: true,
-            ..default()
-        },
-        Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
-    ));
-
-    // Camera
-    commands.spawn((
-        Camera3d::default(),
-        Transform::from_xyz(0.0, 1.75, 0.0).looking_at(PAPER_POS, Vec3::Y),
-        //Transform::from_xyz(0.0, 1.0, 3.0).looking_at(Vec3::Y, Vec3::Y),
-    ));
 }

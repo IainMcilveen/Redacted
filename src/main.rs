@@ -9,6 +9,7 @@ use bevy::{
     },
 };
 
+mod environment;
 mod menu;
 mod paper;
 mod pen;
@@ -49,6 +50,7 @@ fn main() {
         .add_plugins(menu::plugin)
         .add_plugins(paper::plugin)
         .add_plugins(pen::plugin)
+        .add_plugins(environment::plugin)
         .run();
 }
 
