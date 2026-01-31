@@ -1,9 +1,9 @@
 use bevy_window::{CursorGrabMode, CursorOptions, Window};
-use std::f32::consts::PI;
+use std::{f32::consts::PI, time::Duration};
 
 use bevy::{
     color::palettes::css, input::mouse::AccumulatedMouseMotion, light::CascadeShadowConfigBuilder,
-    prelude::*, scene::SceneInstanceReady,
+    prelude::*, scene::SceneInstanceReady, time::common_conditions::once_after_real_delay,
 };
 
 use crate::paper::Character;
@@ -16,19 +16,24 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(Startup, setup_mesh_and_animation)
         .add_systems(Startup, set_mouse_setting)
         .add_systems(Update, mouse_motion_system)
+        .add_systems(Update, marker_animation_change)
+        .add_systems(Update, setup_scene_once_loaded)
         .add_systems(Update, (ray_cast_system, pen_drop));
 }
 
 // An example asset that contains a mesh and animation.
-const GLTF_PATH: &str = "models/marker_1.glb";
+const GLTF_PATH: &str = "models/marker_2.glb";
 
 // A component that stores a reference to an animation we want to play. This is
 // created when we start loading the mesh (see `setup_mesh_and_animation`) and
 // read when the mesh has spawned (see `play_animation_once_loaded`).
-#[derive(Component)]
-pub struct AnimationToPlay {
+
+
+#[derive(Resource)]
+struct PenAnimations{
+    animations: Vec<AnimationNodeIndex>,
+    current_annimation: usize,
     graph_handle: Handle<AnimationGraph>,
-    index: AnimationNodeIndex,
 }
 
 #[derive(Component, Default, Clone, Copy)]
@@ -43,18 +48,20 @@ fn setup_mesh_and_animation(
 ) {
     // Create an animation graph containing a single animation. We want the "run"
     // animation from our example asset, which has an index of two.
-    let (graph, index) = AnimationGraph::from_clip(
+    let (graph, node_indices) = AnimationGraph::from_clips([
         asset_server.load(GltfAssetLabel::Animation(0).from_asset(GLTF_PATH)),
+        asset_server.load(GltfAssetLabel::Animation(1).from_asset(GLTF_PATH)),
+    ]
     );
 
     // Store the animation graph as an asset.
-    let graph_handle = graphs.add(graph);
 
-    // Create a component that stores a reference to our animation.
-    let animation_to_play = AnimationToPlay {
+    let graph_handle = graphs.add(graph);
+    commands.insert_resource(PenAnimations {
+        animations: node_indices,
+        current_annimation: 0,
         graph_handle,
-        index,
-    };
+    });
 
     // Start loading the asset as a scene and store a reference to it in a
     // SceneRoot component. This component will automatically spawn a scene
@@ -66,18 +73,16 @@ fn setup_mesh_and_animation(
     commands
         .spawn((
             Marker::default(),
-            animation_to_play,
             mesh_scene,
             Transform::from_scale(Vec3::splat(0.03))
                 .with_rotation(Quat::from_rotation_z(0.5))
                 .with_translation(Vec3::new(0.0, 1.1, 1.0)),
-        ))
-        .observe(play_animation_when_ready);
+        ));
 }
 
 fn ray_cast_system(
     mut raycast: MeshRayCast,
-    mut pen_q: Single<(&Transform, &mut Marker), With<AnimationToPlay>>,
+    mut pen_q: Single<(&Transform, &mut Marker), With<Marker>>,
     mut q: Query<&mut Character>,
     mut gizmos: Gizmos,
 ) {
@@ -104,39 +109,6 @@ fn ray_cast_system(
     }
 }
 
-fn play_animation_when_ready(
-    scene_ready: On<SceneInstanceReady>,
-    mut commands: Commands,
-    children: Query<&Children>,
-    animations_to_play: Query<&AnimationToPlay>,
-    mut players: Query<&mut AnimationPlayer>,
-) {
-    // The entity we spawned in `setup_mesh_and_animation` is the trigger's target.
-    // Start by finding the AnimationToPlay component we added to that entity.
-    if let Ok(animation_to_play) = animations_to_play.get(scene_ready.entity) {
-        // The SceneRoot component will have spawned the scene as a hierarchy
-        // of entities parented to our entity. Since the asset contained a skinned
-        // mesh and animations, it will also have spawned an animation player
-        // component. Search our entity's descendants to find the animation player.
-        for child in children.iter_descendants(scene_ready.entity) {
-            if let Ok(mut player) = players.get_mut(child) {
-                // Tell the animation player to start the animation and keep
-                // repeating it.
-                //
-                // If you want to try stopping and switching animations, see the
-                // `animated_mesh_control.rs` example.
-                // player.play(animation_to_play.index).repeat();
-                player.play(animation_to_play.index);
-
-                // Add the animation graph. This only needs to be done once to
-                // connect the animation player to the mesh.
-                commands
-                    .entity(child)
-                    .insert(AnimationGraphHandle(animation_to_play.graph_handle.clone()));
-            }
-        }
-    }
-}
 
 fn set_mouse_setting(mut windows: Query<(&Window, &mut CursorOptions)>) {
     for (window, mut cursor_options) in &mut windows {
@@ -151,7 +123,7 @@ fn set_mouse_setting(mut windows: Query<(&Window, &mut CursorOptions)>) {
 
 fn pen_drop(
     mouse: Res<ButtonInput<MouseButton>>,
-    mut pen: Single<&mut Transform, With<AnimationToPlay>>,
+    mut pen: Single<&mut Transform, With<Marker>>,
 ) {
     if (mouse.pressed(MouseButton::Left)) {
         pen.translation.y = 0.988;
@@ -160,9 +132,56 @@ fn pen_drop(
     }
 }
 
+fn marker_animation_change(
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut animation_players: Query<(&mut AnimationPlayer, &mut AnimationTransitions)>,
+    mut animations: ResMut<PenAnimations>,
+){
+     for (mut player, mut transitions) in &mut animation_players {
+        println!("FUND PLAYERS");
+        let Some((&playing_animation_index, _)) = player.playing_animations().next() else {
+            continue;
+        };
+        if keyboard_input.just_pressed(KeyCode::Enter) {
+            println!("Change?");
+            animations.current_annimation = (animations.current_annimation + 1) % animations.animations.len();
+
+            transitions
+                .play(
+                    &mut player,
+                    animations.animations[animations.current_annimation],
+                    Duration::from_millis(1),
+                );
+        }
+
+    }
+}
+
+fn setup_scene_once_loaded(
+    mut commands: Commands,
+    animations: Res<PenAnimations>,
+    mut players: Query<(Entity, &mut AnimationPlayer), Added<AnimationPlayer>>,
+) {
+    for (entity, mut player) in &mut players {
+        let mut transitions = AnimationTransitions::new();
+
+        // Make sure to start the animation via the `AnimationTransitions`
+        // component. The `AnimationTransitions` component wants to manage all
+        // the animations and will get confused if the animations are started
+        // directly via the `AnimationPlayer`.
+        transitions
+            .play(&mut player, animations.animations[0], Duration::ZERO);
+
+        commands
+            .entity(entity)
+            .insert(AnimationGraphHandle(animations.graph_handle.clone()))
+            .insert(transitions);
+    }
+}
+
 fn mouse_motion_system(
     accumulated_mouse_motion: Res<AccumulatedMouseMotion>,
-    mut marker: Single<&mut Transform, With<AnimationToPlay>>,
+    mut marker: Single<&mut Transform, With<Marker>>,
 ) {
     let delta = accumulated_mouse_motion.delta;
     if delta != Vec2::ZERO {

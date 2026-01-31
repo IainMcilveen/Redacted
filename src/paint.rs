@@ -2,7 +2,7 @@ use bevy::camera::RenderTarget;
 use bevy::{camera::visibility::RenderLayers, prelude::*, render::render_resource::TextureFormat};
 
 use crate::paper::PAPER_POS;
-use crate::pen::{AnimationToPlay, Marker};
+use crate::pen::{Marker};
 
 #[derive(Resource, Default)]
 struct BrushState {
@@ -66,7 +66,7 @@ fn setup(
 
 fn mouse_draw_system(
     buttons: Res<ButtonInput<MouseButton>>,
-    marker_q: Single<&Marker, With<AnimationToPlay>>,
+    marker_q: Single<&Marker, With<Marker>>,
     mut brush_state: ResMut<BrushState>,
     mut commands: Commands,
 ) {
