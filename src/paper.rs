@@ -14,19 +14,75 @@ use bevy_rich_text3d::{
 use crate::text_asset::get_text_file;
 
 use super::GameState;
+struct PageText{
+    pages: Vec<String>
+}
+
+impl PageText {
+ pub fn from_text(full_text: String) -> Self {
+    let mut pages: Vec<String> = Vec::new();
+
+    let mut row = 0;
+    let mut col: i32 = 0;
+    let max_length = 24;
+    let max_height = 25;
+    let mut total_chars = 0;
+    let mut to_redact = false;
+    let mut current_page_string = String::new();
+    for word in full_text.split(" ") {
+        if row > max_height {
+            pages.push(current_page_string.clone());
+            current_page_string = String::new();
+            row = 0;
+            col = 0
+        }
+        let word_string = word.to_string();
+        if col + word_string.len() as i32 > max_length {
+            row += 1;
+            col = 0;
+        }
+        for c in word_string.chars() {
+            if c == '<' {
+            current_page_string.push(c);
+                to_redact = true;
+                continue;
+            } else if c == '>' {
+                current_page_string.push(c);
+                to_redact = false;
+                continue;
+            }
+            current_page_string.push(c);
+
+            total_chars += 1;
+            col += 1;
+        }
+        current_page_string.push(' ');
+        col += 1;
+    }
+    Self { pages: pages }
+ }
+}
 
 #[derive(Component)]
 pub struct Page {
+    pages: PageText,
     text: String,
     pub to_redact: u32,
     pub is_redacted: u32,
     pub total_chars: u32,
+    pub page_num: i32
 }
+
+// #[derive(Resource)]
+// pub struct Pages{
+//     pages: Vec<String>
+// }
 
 #[derive(Component, Debug)]
 pub struct Character {
     pub to_redact: bool,
     pub is_redacted: bool,
+    pub page_num: u32
 }
 
 #[derive(Resource, Default)]
@@ -48,7 +104,8 @@ pub(super) fn plugin(app: &mut App) {
     .add_systems(
         FixedUpdate,
         check_redacted.run_if(in_state(GameState::PLAYING)),
-    );
+    )
+    .add_systems(Update, next_page);
     // .add_systems(
     //     Update,
     //     (menu_action, button_system).run_if(in_state(GameState::MENU)),
@@ -78,29 +135,40 @@ fn check_redacted(page_q: Query<&Character>) {
 
 pub const PAPER_POS: Vec3 = Vec3::new(0.0, 0.8, 1.0);
 
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
+
+fn next_page(mut commands: Commands, chars: Query<(&Character, Entity)>, key_in: Res<ButtonInput<KeyCode>>,
+    mut page: Single<&mut Page>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    // Text on the paper
-    let page_string = "That's all the family news that we're allowed to talk about. We really hope you'll come and visit us soon. I mean we're literally begging you to visit us. And make it quick before they <kill us> Now it's time for Christmas dinner - I think the robots sent us a pie! You know I love my soylent green.";
-    //let page_string = get_text_file("assets/text/beemovie.txt").expect("CAN't LOAD BEE MOVIE");
+){
+    if key_in.just_pressed(KeyCode::KeyP){
+        for (c, ent) in chars.iter() {
+           commands.entity(ent).despawn(); 
+        }
+        // let page_string = "That's all the family news that we're allowed to talk about. We really hope you'll come and visit us soon. I mean we're literally begging you to visit us. And make it quick before they <kill us> Now it's time for Christmas dinner - I think the robots sent us a pie! You know I love my soylent green.";
+    // let page_string = get_text_file("assets/text/beemovie.txt") .expect("CAN't LOAD BEE MOVIE");
+
+    page.page_num += 1;
     let x_offset = 0.022;
     let y_offset = 0.032;
     let mut row = 0;
-    let mut col = 0;
-    let max_length = 25;
+    let mut col: i32 = 0;
+    let max_length = 24;
+    let max_height = 25;
     let mut to_redact = false;
     let mut total_to_redact = 0;
     let mut total_chars = 0;
+    let mut chars_skipped: u32 = 0;
+    let page_string = page.pages.pages.get(page.page_num as usize).expect("Can't get page at index");
+    println!("{}", page_string);
     for word in page_string.split(" ") {
+        if row > max_height {
+            break
+        }
         let word_string = word.to_string();
-        if col + word_string.len() > max_length {
+        if col + word_string.len() as i32 > max_length {
             row += 1;
             col = 0;
         }
-
         for c in word_string.chars() {
             if c == '<' {
                 to_redact = true;
@@ -147,6 +215,7 @@ fn setup(
                 Character {
                     to_redact: to_redact,
                     is_redacted: false,
+                    page_num: page.page_num as u32
                 },
                 DespawnOnExit(GameState::PLAYING),
             ));
@@ -158,6 +227,98 @@ fn setup(
         }
         col += 1;
     }
+    page.total_chars += total_chars;
+    page.to_redact += total_to_redact;
+    }
+}
+
+fn setup(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    // Text on the paper
+    // let page_string = "That's all the family news that we're allowed to talk about. We really hope you'll come and visit us soon. I mean we're literally begging you to visit us. And make it quick before they <kill us> Now it's time for Christmas dinner - I think the robots sent us a pie! You know I love my soylent green.";
+    let page_string = get_text_file("assets/text/beemovie.txt") .expect("CAN't LOAD BEE MOVIE");
+    // let x_offset = 0.022;
+    // let y_offset = 0.032;
+    // let mut current_page_num: u32 = 0;
+    // let mut row = 0;
+    // let mut col = 0;
+    // let max_length = 24;
+    // let max_height = 25;
+    // let mut to_redact = false;
+    // let mut total_to_redact = 0;
+    // let mut total_chars = 0;
+    // for word in page_string.split(" ") {
+    //     if row > max_height {
+    //         break
+    //     }
+    //     let word_string = word.to_string();
+    //     if col + word_string.len() > max_length {
+    //         row += 1;
+    //         col = 0;
+    //     }
+
+
+    //     for c in word_string.chars() {
+    //         if c == '<' {
+    //             to_redact = true;
+    //             continue;
+    //         } else if c == '>' {
+    //             to_redact = false;
+    //             continue;
+    //         }
+    //         commands.spawn((
+    //             Text3d::new(c),
+    //             Text3dBounds { width: 260.0 },
+    //             Text3dStyling {
+    //                 font: "monospace".into(),
+    //                 weight: Weight::BOLD,
+    //                 ..default()
+    //             },
+    //             MeshMaterial3d(materials.add(StandardMaterial {
+    //                 // Use the shared texture atlas for efficient rendering
+    //                 base_color: Color::BLACK,
+    //                 base_color_texture: Some(TextAtlas::DEFAULT_IMAGE.clone()),
+    //                 alpha_mode: AlphaMode::Blend,
+    //                 ..default()
+    //             })),
+    //             Transform::from_translation(
+    //                 ((PAPER_POS
+    //                     + Vec3 {
+    //                         x: 0.25,
+    //                         y: 0.0,
+    //                         z: 0.4,
+    //                     })
+    //                     + Vec3::Y * 0.001
+    //                     - (Vec3 {
+    //                         x: x_offset * col as f32,
+    //                         y: 0.0,
+    //                         z: y_offset * row as f32,
+    //                     })),
+    //             )
+    //             .with_rotation(
+    //                 Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)
+    //                     * Quat::from_rotation_z(std::f32::consts::PI),
+    //             )
+    //             .with_scale(Vec3::splat(0.0022)),
+    //             Mesh3d::default(),
+    //             Character {
+    //                 to_redact: to_redact,
+    //                 is_redacted: false,
+    //                 page_num: current_page_num
+    //             },
+    //             DespawnOnExit(GameState::PLAYING),
+    //         ));
+    //         if to_redact {
+    //             total_to_redact += 1;
+    //         }
+    //         total_chars += 1;
+    //         col += 1;
+    //     }
+    //     col += 1;
+    // }
 
     // Paper
     commands.spawn((
@@ -165,10 +326,12 @@ fn setup(
         MeshMaterial3d(materials.add(Color::WHITE)),
         Transform::from_translation(PAPER_POS),
         Page {
+            pages: PageText::from_text(page_string.into()),
             is_redacted: 0,
-            to_redact: total_to_redact,
-            total_chars: total_chars,
-            text: page_string.into(),
+            to_redact: 0,
+            total_chars: 0,
+            text: "naw".into(),
+            page_num: -1
         },
         DespawnOnExit(GameState::PLAYING),
     ));
