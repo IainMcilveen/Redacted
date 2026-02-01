@@ -146,7 +146,6 @@ impl PageText {
 #[derive(Component)]
 pub struct Page {
     pages: PageText,
-    text: String,
     pub to_redact: u32,
     pub is_redacted: u32,
     pub total_chars: u32,
@@ -402,10 +401,9 @@ fn setup(
             is_redacted: 0,
             to_redact: 0,
             total_chars: 0,
-            text: "naw".into(),
             page_num: -1,
         },
-        DespawnOnExit(GameState::PLAYING),
+        DespawnOnExit(GameState::END),
     ));
 
     // commands.spawn((

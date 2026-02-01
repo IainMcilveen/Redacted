@@ -15,13 +15,14 @@ mod environment;
 mod feedback;
 mod loading;
 mod menu;
+mod end;
 mod mob;
 mod paint;
 mod paper;
 mod pen;
 mod text_asset;
 
-pub const LIFETIME: f32 = 200.0;
+pub const LIFETIME: f32 = 5.0;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum GameState {
@@ -72,6 +73,7 @@ fn main() {
         .add_plugins(audio::plugin)
         .add_plugins(loading::plugin)
         .add_plugins(menu::plugin)
+        .add_plugins(end::plugin)
         .add_plugins(paper::plugin)
         .add_plugins(mob::plugin)
         .add_plugins(pen::plugin)

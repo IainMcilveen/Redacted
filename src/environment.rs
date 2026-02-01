@@ -89,6 +89,7 @@ fn setup(
         // Transform::from_xyz(0.0, 1.75, -10.0).looking_at(Vec3::new(0.0, 1.75, 1.0), Vec3::Y),
         // Page View
         Transform::from_xyz(0.0, 1.75, 0.0).looking_at(Vec3::new(0.0, 1.25, 1.0), Vec3::Y), //Transform::from_xyz(0.0, 1.0, 3.0).looking_at(Vec3::Y, Vec3::Y),
+        DespawnOnExit(GameState::PLAYING)
     ));
 }
 
@@ -101,7 +102,7 @@ fn update_glass_cracks(
     let progress = timer.0.elapsed_secs() / LIFETIME;
     glass_crack_stage.0 = floor(progress * assets.glass_cracks.len() as f32) as usize;
     for mut sprite in &mut query {
-        sprite.image = assets.glass_cracks[glass_crack_stage.0].clone();
+        sprite.image = assets.glass_cracks[glass_crack_stage.0.clamp(0, assets.glass_cracks.len() - 1)].clone();
     }
 }
 
