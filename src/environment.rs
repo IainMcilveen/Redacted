@@ -17,15 +17,31 @@ struct GlassCrackWall;
 pub struct GlassCrackStage(pub usize);
 
 #[derive(Resource)]
-struct LookingAt(Vec3);
+struct LookingAt {
+    pub vec: Vec3,
+    pub look: Looks,
+}
 
 #[derive(Component)]
 pub struct Desk;
 
+#[derive(Debug, PartialEq, Eq, Copy, Clone, Default)]
+pub enum Looks {
+    #[default]
+    Page,
+    Forward,
+}
+
+pub const PAGE_LOOK: Vec3 = Vec3::new(0.0, 0.9, 1.0);
+pub const FORWARD_LOOK: Vec3 = Vec3::new(0.0, 1.25, 10.0);
+
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(Sprite3dPlugin)
         .insert_resource(GlassCrackStage(0))
-        .insert_resource(LookingAt(Vec3::new(0.0, 1.25, 1.0)))
+        .insert_resource(LookingAt {
+            vec: PAGE_LOOK,
+            look: Looks::Page,
+        })
         .add_systems(OnEnter(GameState::PLAYING), setup)
         .add_systems(Update, (update_glass_cracks, update_looking));
 }
@@ -36,9 +52,14 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut countdown: ResMut<CountdownTimer>,
+    mut looking_at: ResMut<LookingAt>,
 ) {
     // reset timer
     countdown.0 = Timer::from_seconds(LIFETIME, TimerMode::Once);
+
+    // reset look
+    looking_at.vec = PAGE_LOOK;
+    looking_at.look = Looks::Page;
 
     commands.spawn((
         Sprite::from_image(assets.wall.clone()),
@@ -87,10 +108,7 @@ fn setup(
     // Camera
     commands.spawn((
         Camera3d::default(),
-        // Wall View
-        // Transform::from_xyz(0.0, 1.75, -10.0).looking_at(Vec3::new(0.0, 1.75, 1.0), Vec3::Y),
-        // Page View
-        Transform::from_xyz(0.0, 1.75, 0.0).looking_at(Vec3::new(0.0, 1.25, 1.0), Vec3::Y), //Transform::from_xyz(0.0, 1.0, 3.0).looking_at(Vec3::Y, Vec3::Y),
+        Transform::from_xyz(0.0, 1.75, 0.0).looking_at(PAGE_LOOK, Vec3::Y),
         DespawnOnExit(GameState::PLAYING),
     ));
 }
@@ -115,17 +133,38 @@ fn update_looking(
     time: Res<Time>,
     mut camera_transform: Single<&mut Transform, With<Camera3d>>,
 ) {
+    if keyboard_input.just_pressed(KeyCode::KeyV) {
+        match looking_at.look {
+            Looks::Forward => {
+                looking_at.look = Looks::Page;
+                looking_at.vec = PAGE_LOOK;
+            }
+            Looks::Page => {
+                looking_at.look = Looks::Forward;
+                looking_at.vec = FORWARD_LOOK;
+            }
+        }
+    }
+
     if keyboard_input.pressed(KeyCode::ArrowUp) {
-        looking_at.0.y += time.delta_secs()
+        looking_at.vec.y += time.delta_secs() * 2.0;
     }
     if keyboard_input.pressed(KeyCode::ArrowDown) {
-        looking_at.0.y -= time.delta_secs()
+        looking_at.vec.y -= time.delta_secs() * 2.0;
     }
     if keyboard_input.pressed(KeyCode::ArrowLeft) {
-        looking_at.0.x += time.delta_secs()
+        looking_at.vec.x += time.delta_secs() * 2.0;
     }
     if keyboard_input.pressed(KeyCode::ArrowRight) {
-        looking_at.0.x -= time.delta_secs()
+        looking_at.vec.x -= time.delta_secs() * 2.0;
     }
-    camera_transform.look_at(looking_at.0, Vec3::Y);
+
+    // interpolate camera move
+    let speed = 5.0;
+    let target_rotation = camera_transform
+        .looking_at(looking_at.vec, Vec3::Y)
+        .rotation;
+    camera_transform.rotation = camera_transform
+        .rotation
+        .slerp(target_rotation, speed * time.delta_secs());
 }
