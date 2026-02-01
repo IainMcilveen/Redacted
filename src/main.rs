@@ -22,7 +22,7 @@ mod paper;
 mod pen;
 mod text_asset;
 
-pub const LIFETIME: f32 = 5.0;
+pub const LIFETIME: f32 = 15.0;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum GameState {
