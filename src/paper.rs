@@ -390,6 +390,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     asset_server: Res<AssetServer>,
+    mut page_scores: ResMut<PageScores>,
 ) {
     let ink_mesh_scene =
         SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset(BUTTON_MODEL_PATH)));
@@ -403,6 +404,7 @@ fn setup(
         Transform::from_translation(BTN_POS)
             .with_scale(Vec3::splat(0.1))
             .with_rotation(Quat::from_rotation_y(3.14159)),
+        DespawnOnExit(GameState::PLAYING),
     ));
 
     // Text on the paper
@@ -421,8 +423,13 @@ fn setup(
             total_chars: 0,
             page_num: -1,
         },
-        DespawnOnExit(GameState::END),
+        DespawnOnExit(GameState::PLAYING),
     ));
+
+    // reset score state
+    page_scores.correctly_redacted = 0;
+    page_scores.total_chars = 0;
+    page_scores.total_to_redact = 0;
 
     // commands.spawn((
     //     Text3d::new("123456789098765432123456789098765 In accordance with the determinations reached during the most recent closed procedural interval, all affected parties are advised that preliminary conditions have now been satisfied and that subsequent measures will proceed without further notice.\n\nAny variance from the established sequence, whether intentional or incidental, will be documented and reconciled under the appropriate review instruments. Stakeholders should consider this communication to constitute sufficient advisory of impending adjustments, the full scope of which will be disclosed only upon completion of the requisite confirmations."),

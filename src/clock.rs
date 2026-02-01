@@ -13,7 +13,7 @@ const ALARM_CLOCK_MODEL_PATH: &str = "models/alarm_clock.glb";
 struct AlarmClockText;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(Startup, setup_mesh)
+    app.add_systems(OnEnter(GameState::PLAYING), setup_mesh)
         .add_systems(Update, update_clock.run_if(in_state(GameState::PLAYING)));
 }
 

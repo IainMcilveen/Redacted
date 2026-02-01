@@ -11,18 +11,18 @@ use bevy::{
 
 mod audio;
 mod clock;
+mod end;
 mod environment;
 mod feedback;
 mod loading;
 mod menu;
-mod end;
 mod mob;
 mod paint;
 mod paper;
 mod pen;
 mod text_asset;
 
-pub const LIFETIME: f32 = 15.0;
+pub const LIFETIME: f32 = 8.0;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum GameState {

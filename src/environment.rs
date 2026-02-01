@@ -35,7 +35,11 @@ fn setup(
     assets: Res<GameAssets>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut countdown: ResMut<CountdownTimer>,
 ) {
+    // reset timer
+    countdown.0 = Timer::from_seconds(LIFETIME, TimerMode::Once);
+
     commands.spawn((
         Sprite::from_image(assets.wall.clone()),
         Sprite3d {

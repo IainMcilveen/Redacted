@@ -20,8 +20,14 @@ use super::GameState;
 pub(super) fn plugin(app: &mut App) {
     app
         // .add_systems(Startup, set_mouse_setting)
-        .add_systems(Startup, (setup_mesh_and_animation, create_ink_meter))
-        .add_systems(OnEnter(GameState::PLAYING), set_mouse_setting)
+        .add_systems(
+            OnEnter(GameState::PLAYING),
+            (
+                setup_mesh_and_animation,
+                create_ink_meter,
+                set_mouse_setting,
+            ),
+        )
         .add_systems(OnExit(GameState::PLAYING), reset_mouse_setting)
         .add_systems(
             Update,
