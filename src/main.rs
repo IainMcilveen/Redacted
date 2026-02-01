@@ -21,6 +21,7 @@ mod paint;
 mod paper;
 mod pen;
 mod text_asset;
+mod planner;
 
 pub const LIFETIME: f32 = 150.0;
 
@@ -81,6 +82,7 @@ fn main() {
         .add_plugins(environment::plugin)
         .add_plugins(paint::plugin)
         .add_plugins(feedback::plugin)
+        .add_plugins(planner::plugin)
         // .add_systems(Update, framerate)
         .run();
 }
