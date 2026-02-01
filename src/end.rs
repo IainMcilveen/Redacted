@@ -186,7 +186,7 @@ fn menu_action(
                     //app_exit_writer.write(AppExit::Success);
                 }
                 MenuAction::Replay => {
-                    game_state.set(GameState::END);
+                    game_state.set(GameState::MENU);
                 }
             }
         }
