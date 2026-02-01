@@ -138,7 +138,7 @@ fn update_scores(
         let unredacted = score_res.page_total - correct_redacted;
 
         text3d.segments = Text3d::new(format!("Boss:\n\nRedact anything related to Bees NOW\n\nPage {}/{}\nRedacted: {}\nUnredacted: {}",
-        page.page_num,
+        page.page_num + 1,
         page.pages.pages.len(),
         correct_redacted,
         unredacted)
