@@ -19,6 +19,9 @@ struct GlassCrackStage(usize);
 #[derive(Resource)]
 struct LookingAt(Vec3);
 
+#[derive(Component)]
+pub struct Desk;
+
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(Sprite3dPlugin)
         .add_systems(OnEnter(GameState::PLAYING), setup)
@@ -55,7 +58,7 @@ fn setup(
             unlit: true,
             ..default()
         },
-        Transform::from_xyz(0.0, 0.0, 10.0),
+        Transform::from_xyz(0.0, 0.0, 10.001),
         GlassCrackWall,
         DespawnOnExit(GameState::PLAYING),
     ));
@@ -66,6 +69,7 @@ fn setup(
         MeshMaterial3d(materials.add(Color::srgb(0.4, 0.25, 0.15))),
         Transform::from_xyz(0.0, 0.70, 1.0),
         DespawnOnExit(GameState::PLAYING),
+        Desk,
     ));
 
     // Light
