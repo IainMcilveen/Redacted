@@ -19,7 +19,7 @@ struct SelectedOption;
 // Colours
 const BG_COLOR: Color = Color::srgb(0.25, 0.5, 0.9);
 const SUB_COLOR: Color = Color::srgb(0.65, 0.7, 0.8);
-const TITLE_COLOR: Color = Color::srgb(0.1, 0.1, 0.1);
+const TITLE_COLOR: Color = Color::WHITE;
 const TEXT_COLOR: Color = Color::srgb(0.9, 0.9, 0.9);
 const NORMAL_BUTTON: Color = Color::srgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::srgb(0.25, 0.25, 0.25);
@@ -62,6 +62,7 @@ fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // load button icons
     let right_icon = asset_server.load("menu/right.png");
     let exit_icon = asset_server.load("menu/exit.png");
+    let background_image = asset_server.load("menu/main.png");
 
     commands.spawn((
         DespawnOnExit(GameState::MENU),
@@ -72,7 +73,7 @@ fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             justify_content: JustifyContent::Center,
             ..default()
         },
-        BackgroundColor(BG_COLOR),
+        ImageNode::new(background_image.clone()),
         Menu,
         children![(
             Node {
@@ -85,7 +86,7 @@ fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 (
                     Text::new("REDACTED"),
                     TextFont {
-                        font_size: 67.0,
+                        font_size: 128.0,
                         ..default()
                     },
                     TextColor(TITLE_COLOR),
