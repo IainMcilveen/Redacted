@@ -5,6 +5,8 @@ pub enum Sounds {
     VineBoom,
     MarkerDrag,
     Slurp,
+    Correct,
+    Wrong,
 }
 
 #[derive(Event)]
@@ -45,6 +47,12 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     sound_bank
         .sounds
         .insert(Sounds::Slurp, asset_server.load("audio/slurp.ogg"));
+    sound_bank
+        .sounds
+        .insert(Sounds::Correct, asset_server.load("audio/correct.ogg"));
+    sound_bank
+        .sounds
+        .insert(Sounds::Wrong, asset_server.load("audio/wrong.ogg"));
 
     commands.insert_resource(sound_bank);
 }
