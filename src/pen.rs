@@ -22,6 +22,7 @@ pub(super) fn plugin(app: &mut App) {
         // .add_systems(Startup, set_mouse_setting)
         .add_systems(Startup, (setup_mesh_and_animation, create_ink_meter))
         .add_systems(OnEnter(GameState::PLAYING), set_mouse_setting)
+        .add_systems(OnExit(GameState::PLAYING), reset_mouse_setting)
         .add_systems(
             Update,
             (
@@ -232,6 +233,13 @@ fn set_mouse_setting(mut windows: Query<(&Window, &mut CursorOptions)>) {
 
         cursor_options.grab_mode = CursorGrabMode::Locked;
         cursor_options.visible = false;
+    }
+}
+
+fn reset_mouse_setting(mut windows: Query<(&mut CursorOptions)>) {
+    for mut cursor_options in &mut windows {
+        cursor_options.grab_mode = CursorGrabMode::None;
+        cursor_options.visible = true;
     }
 }
 
