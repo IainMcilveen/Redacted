@@ -42,15 +42,16 @@ fn update_mob(
     }
     let mob_attack_duration = LIFETIME * (1.0 - (GLASS_BREAK_STAGE as f32) / 11.0);
     let mob_attack_progress = 1.0 - (countdown.0.remaining_secs() / mob_attack_duration);
-    println!(
-        "glass_crack_stage: {} mob_attack_progress: {}",
-        glass_crack_stage.0, mob_attack_progress
-    );
+    // println!(
+    //     "glass_crack_stage: {} mob_attack_progress: {}",
+    //     glass_crack_stage.0, mob_attack_progress
+    // );
     for mut member in &mut members {
         let sway = sin(countdown.0.elapsed_secs() * 8.0 + member.1.offset) * 30.0;
         member.0.rotation = Quat::from_rotation_z(PI * 2.0 * sway * member.1.anger / 360.0);
         if glass_crack_stage.0 >= GLASS_BREAK_STAGE {
-            member.0.translation.z = member.1.z - (MOB_ATTACK_ADVANCE * member.1.anger) * mob_attack_progress;
+            member.0.translation.z =
+                member.1.z - (MOB_ATTACK_ADVANCE * member.1.anger) * mob_attack_progress;
         }
     }
 }

@@ -179,7 +179,7 @@ fn ray_cast_system(
     let filter = |entity| !ignore_q.contains(entity);
     let settings = MeshRayCastSettings::default().with_filter(&filter);
     let hits = raycast.cast_ray(ray, &settings);
-    gizmos.line(ray.origin, ray.origin + dir_vec, Color::from(css::RED));
+    //gizmos.line(ray.origin, ray.origin + dir_vec, Color::from(css::RED));
 
     for (ent, ray_mesh_hit) in hits {
         // println!("{:?}", ent);
@@ -195,21 +195,21 @@ fn ray_cast_system(
             marker.off_page = false;
 
             if character.0.to_redact && !character.0.is_redacted {
-                character.0.is_redacted = true;
+                // character.0.is_redacted = true;
 
-                // update page scores
-                page_scores.correctly_redacted += 1;
-                page_scores.page_redaction += 1;
+                // // update page scores
+                // page_scores.correctly_redacted += 1;
+                // page_scores.page_redaction += 1;
 
-                match marker.tip_location {
-                    Some(pos) => {
-                        commands.trigger(FeedbackEvent {
-                            feedback: Feedbacks::Correct,
-                            pos: pos,
-                        });
-                    }
-                    _ => {}
-                }
+                // match marker.tip_location {
+                //     Some(pos) => {
+                //         commands.trigger(FeedbackEvent {
+                //             feedback: Feedbacks::Correct,
+                //             pos: pos,
+                //         });
+                //     }
+                //     _ => {}
+                // }
             } else if !character.0.is_redacted {
                 // character.0.is_redacted = true;
 
@@ -234,22 +234,43 @@ fn ray_cast_system(
         }
     }
 
+    if !marker.can_draw {
+        return;
+    }
     if let Some(tip_position) = marker.tip_location {
         for (mut character, transform) in characters {
-            if transform.translation.distance(tip_position) < 0.005 {
-                character.is_redacted = true;
+            if transform.translation.distance(tip_position) < 0.01 {
+                if character.to_redact && !character.is_redacted {
+                    character.is_redacted = true;
 
-                // decrement counter if wrong character is redacted
-                countdown.0.tick(Duration::from_secs(1));
+                    // update page scores
+                    page_scores.correctly_redacted += 1;
+                    page_scores.page_redaction += 1;
 
-                match marker.tip_location {
-                    Some(pos) => {
-                        commands.trigger(FeedbackEvent {
-                            feedback: Feedbacks::Wrong,
-                            pos: pos,
-                        });
+                    match marker.tip_location {
+                        Some(pos) => {
+                            commands.trigger(FeedbackEvent {
+                                feedback: Feedbacks::Correct,
+                                pos: pos,
+                            });
+                        }
+                        _ => {}
                     }
-                    _ => {}
+                } else if !character.is_redacted {
+                    character.is_redacted = true;
+
+                    // decrement counter if wrong character is redacted
+                    countdown.0.tick(Duration::from_secs(1));
+
+                    match marker.tip_location {
+                        Some(pos) => {
+                            commands.trigger(FeedbackEvent {
+                                feedback: Feedbacks::Wrong,
+                                pos: pos,
+                            });
+                        }
+                        _ => {}
+                    }
                 }
             }
         }
