@@ -3,6 +3,17 @@
 version = 4
 
 [[package]]
+name = "Redacted"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy_rich_text3d",
+ "bevy_sprite3d",
+ "bevy_window",
+ "rand",
+]
+
+[[package]]
 name = "ab_glyph"
 version = "0.2.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2505,17 +2516,6 @@ dependencies = [
  "pin-project-lite",
  "pin-utils",
  "slab",
-]
-
-[[package]]
-name = "gaming"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy_rich_text3d",
- "bevy_sprite3d",
- "bevy_window",
- "rand",
 ]
 
 [[package]]
