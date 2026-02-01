@@ -78,13 +78,6 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Paper
-    commands.spawn((
-        Mesh3d(meshes.add(Plane3d::default().mesh().size(0.6, 1.0))),
-        MeshMaterial3d(materials.add(Color::WHITE)),
-        Transform::from_translation(PAPER_POS),
-    ));
-
     // Text on the paper
     let page_string = "That's all the family news that we're allowed to talk about. We really hope you'll come and visit us soon. I mean we're literally begging you to visit us. And make it quick before they <kill us> Now it's time for Christmas dinner - I think the robots sent us a pie! You know I love my soylent green.";
 
@@ -150,6 +143,7 @@ fn setup(
                     to_redact: to_redact,
                     is_redacted: false,
                 },
+                DespawnOnExit(GameState::PLAYING),
             ));
             if to_redact {
                 total_to_redact += 1;
@@ -171,6 +165,7 @@ fn setup(
             total_chars: total_chars,
             text: page_string.into(),
         },
+        DespawnOnExit(GameState::PLAYING),
     ));
 
     // commands.spawn((

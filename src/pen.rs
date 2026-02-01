@@ -20,7 +20,7 @@ pub(super) fn plugin(app: &mut App) {
     app
         // .add_systems(Startup, set_mouse_setting)
         .add_systems(Startup, setup_mesh_and_animation)
-        .add_systems(Startup, set_mouse_setting)
+        .add_systems(OnEnter(GameState::PLAYING), set_mouse_setting)
         .add_systems(Startup, create_ink_meter)
         .add_systems(Update, mouse_motion_system)
         .add_systems(Update, marker_animation_change)
@@ -72,6 +72,7 @@ fn create_ink_meter(
         Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
         MeshMaterial3d(materials.add(Color::from(css::YELLOW))),
         Transform::from_xyz(0.0, 1.0, 1.0).with_scale(Vec3::splat(0.1)),
+        DespawnOnExit(GameState::PLAYING),
     ));
 }
 
@@ -114,12 +115,14 @@ fn setup_mesh_and_animation(
         Transform::from_scale(Vec3::splat(0.03))
             .with_rotation(Quat::from_rotation_z(0.5))
             .with_translation(Vec3::new(0.0, 1.1, 1.0)),
+        DespawnOnExit(GameState::PLAYING),
     ));
     // INK RES
     commands.spawn((
         InkRes,
         ink_mesh_scene,
         Transform::from_scale(Vec3::new(0.1, 0.05, 0.1)).with_translation(INK_RES_POS),
+        DespawnOnExit(GameState::PLAYING),
     ));
 }
 
