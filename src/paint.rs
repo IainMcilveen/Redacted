@@ -46,7 +46,7 @@ fn setup(
         Camera {
             // render before the "main pass" camera
             order: -1,
-            clear_color: ClearColorConfig::Custom(Color::Srgba(Srgba::hex("595652").unwrap())),
+            clear_color: ClearColorConfig::Custom(Color::NONE),
             ..default()
         },
         RenderTarget::Image(image_handle.clone().into()),
