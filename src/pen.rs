@@ -19,7 +19,7 @@ pub(super) fn plugin(app: &mut App) {
     app
         // .add_systems(Startup, set_mouse_setting)
         .add_systems(Startup, setup_mesh_and_animation)
-        .add_systems(Startup, set_mouse_setting)
+        .add_systems(OnEnter(GameState::PLAYING), set_mouse_setting)
         .add_systems(Startup, create_ink_meter)
         .add_systems(Update, mouse_motion_system)
         .add_systems(Update, marker_animation_change)
@@ -28,8 +28,7 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(Update, (pen_drop, ray_cast_system))
         .add_systems(FixedUpdate, can_draw_check)
         .add_systems(FixedUpdate, check_refill);
-
-    }
+}
 
 // An example asset that contains a mesh and animation.
 const GLTF_PATH: &str = "models/marker_2.glb";
@@ -56,7 +55,7 @@ struct InkSupplyMeter();
 #[derive(Component, Default, Clone, Copy)]
 pub struct Marker {
     pub tip_location: Option<Vec3>,
-    pub can_draw: bool
+    pub can_draw: bool,
 }
 
 #[derive(Component)]
@@ -72,6 +71,7 @@ fn create_ink_meter(
         Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
         MeshMaterial3d(materials.add(Color::from(css::YELLOW))),
         Transform::from_xyz(0.0, 1.0, 1.0).with_scale(Vec3::splat(0.1)),
+        DespawnOnExit(GameState::PLAYING),
     ));
 }
 
@@ -114,12 +114,14 @@ fn setup_mesh_and_animation(
         Transform::from_scale(Vec3::splat(0.03))
             .with_rotation(Quat::from_rotation_z(0.5))
             .with_translation(Vec3::new(0.0, 1.1, 1.0)),
+        DespawnOnExit(GameState::PLAYING),
     ));
     // INK RES
     commands.spawn((
         InkRes,
         ink_mesh_scene,
         Transform::from_scale(Vec3::new(0.1, 0.05, 0.1)).with_translation(INK_RES_POS),
+        DespawnOnExit(GameState::PLAYING),
     ));
 }
 
@@ -300,18 +302,18 @@ fn check_refill(marker_q: Single<(&Marker, &mut InkSupplyPercent)>) {
     }
 }
 
-fn can_draw_check(mut single: Single<(&mut Marker, &InkSupplyPercent)>, pen_anim: Res<PenAnimations>){
+fn can_draw_check(
+    mut single: Single<(&mut Marker, &InkSupplyPercent)>,
+    pen_anim: Res<PenAnimations>,
+) {
     let (mut marker, ink_sup) = single.into_inner();
     if ink_sup.0 <= 0.0 {
         marker.can_draw = false;
-    }
-    else if(pen_anim.current_annimation == 0){
+    } else if (pen_anim.current_annimation == 0) {
         marker.can_draw = false
-    }
-    else{
+    } else {
         marker.can_draw = true;
     }
-
 }
 
 fn mouse_motion_system(

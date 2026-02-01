@@ -1,10 +1,12 @@
 use bevy::image::{ImageAddressMode, ImageLoaderSettings, ImageSampler, ImageSamplerDescriptor};
 use bevy::math::Affine2;
+use bevy::math::ops::floor;
 use bevy::prelude::*;
 use bevy_sprite3d::{Sprite3d, Sprite3dPlugin};
 
 use super::GameState;
 use crate::loading::GameAssets;
+use crate::{CountdownTimer, LIFETIME};
 
 pub const PIXELS_PER_METRE: f32 = 30.0;
 
@@ -17,9 +19,6 @@ struct GlassCrackStage(usize);
 #[derive(Resource)]
 struct LookingAt(Vec3);
 
-#[derive(Resource)]
-struct TemporaryTimer(Timer);
-
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(Sprite3dPlugin)
         .add_systems(OnEnter(GameState::PLAYING), setup)
@@ -28,11 +27,6 @@ pub(super) fn plugin(app: &mut App) {
 
     app.insert_resource(GlassCrackStage(0));
     app.insert_resource(LookingAt(Vec3::new(0.0, 1.25, 1.0)));
-
-    app.insert_resource(TemporaryTimer(Timer::from_seconds(
-        0.5,
-        TimerMode::Repeating,
-    )));
 }
 
 fn setup(
@@ -50,6 +44,7 @@ fn setup(
             ..default()
         },
         Transform::from_xyz(0.0, 0.0, 10.0),
+        DespawnOnExit(GameState::PLAYING),
     ));
 
     commands.spawn((
@@ -62,6 +57,7 @@ fn setup(
         },
         Transform::from_xyz(0.0, 0.0, 10.0),
         GlassCrackWall,
+        DespawnOnExit(GameState::PLAYING),
     ));
 
     // Desk
@@ -69,6 +65,7 @@ fn setup(
         Mesh3d(meshes.add(Cuboid::new(2.0, 0.1, 1.5))),
         MeshMaterial3d(materials.add(Color::srgb(0.4, 0.25, 0.15))),
         Transform::from_xyz(0.0, 0.70, 1.0),
+        DespawnOnExit(GameState::PLAYING),
     ));
 
     // Light
@@ -78,6 +75,7 @@ fn setup(
             ..default()
         },
         Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
+        DespawnOnExit(GameState::PLAYING),
     ));
 
     // Camera
@@ -91,15 +89,13 @@ fn setup(
 }
 
 fn update_glass_cracks(
-    time: Res<Time>,
-    mut timer: ResMut<TemporaryTimer>,
+    timer: ResMut<CountdownTimer>,
     mut glass_crack_stage: ResMut<GlassCrackStage>,
     mut query: Query<&mut Sprite, With<GlassCrackWall>>,
     assets: Res<GameAssets>,
 ) {
-    if timer.0.tick(time.delta()).just_finished() {
-        glass_crack_stage.0 = (glass_crack_stage.0 + 1) % 11;
-    }
+    let progress = timer.0.elapsed_secs() / LIFETIME;
+    glass_crack_stage.0 = floor(progress * assets.glass_cracks.len() as f32) as usize;
     for mut sprite in &mut query {
         sprite.image = assets.glass_cracks[glass_crack_stage.0].clone();
     }
