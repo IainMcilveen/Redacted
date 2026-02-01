@@ -33,7 +33,7 @@ pub(super) fn plugin(app: &mut App) {
 
 // An example asset that contains a mesh and animation.
 const GLTF_PATH: &str = "models/marker_2.glb";
-const INK_MODEL_PATH: &str = "models/ink_res_dev.glb";
+const INK_MODEL_PATH: &str = "models/ink_res.glb";
 pub const INK_RES_POS: Vec3 = Vec3::new(-0.5, 0.8, 1.5);
 
 // A component that stores a reference to an animation we want to play. This is
