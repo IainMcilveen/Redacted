@@ -12,7 +12,7 @@ use crate::{
     environment::Desk,
     feedback::{FeedbackEvent, Feedbacks},
     paint::PaintPlane,
-    paper::{Character, Page},
+    paper::{Character, Page, PageScores},
 };
 
 use super::GameState;
@@ -152,6 +152,7 @@ fn ray_cast_system(
     mut gizmos: Gizmos,
     mouse: Res<ButtonInput<MouseButton>>,
     mut countdown: ResMut<CountdownTimer>,
+    mut page_scores: ResMut<PageScores>,
 ) {
     // marker query
     let pen_transform = pen_q.0;
@@ -189,6 +190,9 @@ fn ray_cast_system(
 
             if character.to_redact && !character.is_redacted {
                 character.is_redacted = true;
+
+                // update page scores
+                page_scores.correctly_redacted += 1;
 
                 match marker.tip_location {
                     Some(pos) => {

@@ -20,7 +20,7 @@ use crate::{pen::Marker, text_asset::get_text_file};
 
 const BUTTON_MODEL_PATH: &str = "models/next_button.glb";
 pub const BTN_POS: Vec3 = Vec3::new(0.5, 0.78, 1.3);
-use crate::{paint::ClearEvent};
+use crate::paint::ClearEvent;
 
 use super::GameState;
 struct PageText {
@@ -152,6 +152,13 @@ pub struct Page {
     pub page_num: i32,
 }
 
+#[derive(Resource, Default)]
+pub struct PageScores {
+    pub total_chars: u32,
+    pub total_to_redact: u32,
+    pub correctly_redacted: u32,
+}
+
 // #[derive(Resource)]
 // pub struct Pages{
 //     pages: Vec<String>
@@ -178,6 +185,11 @@ pub(super) fn plugin(app: &mut App) {
     .insert_resource(LoadFonts {
         font_paths: vec!["assets/fonts/SpaceMono-Regular.ttf".to_owned()],
         ..default()
+    })
+    .insert_resource(PageScores {
+        total_chars: 0,
+        total_to_redact: 0,
+        correctly_redacted: 0,
     })
     // .add_systems(Startup, setup_animation)
     .add_systems(OnEnter(GameState::PLAYING), (setup))
@@ -222,6 +234,7 @@ fn next_page(
     mut page: Single<&mut Page>,
     mut go_next_page: Single<&mut GoNextPage>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut page_scores: ResMut<PageScores>,
 ) {
     if go_next_page.go {
         go_next_page.go = false;
@@ -329,6 +342,10 @@ fn next_page(
         page.total_chars += total_chars;
         page.to_redact += total_to_redact;
         commands.spawn_batch(batch_spawn);
+
+        // update page score resource
+        page_scores.total_chars += total_chars;
+        page_scores.total_to_redact += total_to_redact;
     }
 }
 

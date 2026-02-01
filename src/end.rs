@@ -1,6 +1,6 @@
 use bevy::{app::AppExit, color, prelude::*};
 
-use crate::paper::Page;
+use crate::paper::{Page, PageScores};
 
 use super::GameState;
 
@@ -36,7 +36,7 @@ pub(super) fn plugin(app: &mut App) {
         );
 }
 
-fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>, page: Single<&Page>) {
+fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>, page_score: Res<PageScores>) {
     commands.spawn((DespawnOnExit(GameState::END), Camera2d));
 
     // Common style for all buttons on the screen
@@ -66,8 +66,8 @@ fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>, page: Sing
     let exit_icon = asset_server.load("menu/exit.png");
     let background_image = asset_server.load("menu/end.png");
 
-    let characters_redacted = page.is_redacted;
-    let characters_missed = page.to_redact;
+    let characters_redacted = page_score.correctly_redacted;
+    let characters_missed = page_score.total_to_redact - page_score.correctly_redacted;
 
     commands.spawn((
         DespawnOnExit(GameState::END),
@@ -106,9 +106,7 @@ fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>, page: Sing
                         ..default()
                     },
                     TextColor(TITLE_COLOR),
-                    Node {
-                        ..default()
-                    },
+                    Node { ..default() },
                 ),
                 (
                     Text::new(format!("Characters Redacted: {characters_redacted}")),
