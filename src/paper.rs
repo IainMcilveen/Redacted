@@ -27,8 +27,8 @@ const MAX_HEIGHT: i32 = 25;
 use crate::paint::ClearEvent;
 
 use super::GameState;
-struct PageText {
-    pages: Vec<String>,
+pub struct PageText {
+    pub pages: Vec<String>,
 }
 
 #[derive(Component)]
@@ -147,7 +147,7 @@ impl PageText {
 
 #[derive(Component)]
 pub struct Page {
-    pages: PageText,
+    pub pages: PageText,
     pub to_redact: u32,
     pub is_redacted: u32,
     pub total_chars: u32,
