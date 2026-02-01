@@ -12,8 +12,11 @@ use bevy::{
 mod audio;
 mod clock;
 mod environment;
+mod feedback;
+mod loading;
 mod loading;
 mod menu;
+mod mob;
 mod mob;
 mod paint;
 mod paper;
@@ -70,7 +73,13 @@ fn main() {
         .add_plugins(clock::plugin)
         .add_plugins(environment::plugin)
         .add_plugins(paint::plugin)
+        .add_plugins(feedback::plugin)
+        // .add_systems(Update, framerate)
         .run();
+}
+
+fn framerate(time: Res<Time>) {
+    println!("{}", 1.0 / time.delta_secs())
 }
 
 fn update_countdown(time: Res<Time>, mut timer: ResMut<CountdownTimer>) {
