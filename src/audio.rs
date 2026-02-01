@@ -9,6 +9,7 @@ pub enum Sounds {
     Slurp,
     Correct,
     Wrong,
+    GlassCrack,
 }
 
 #[derive(Event)]
@@ -55,6 +56,10 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     sound_bank
         .sounds
         .insert(Sounds::Wrong, asset_server.load("audio/wrong.ogg"));
+    sound_bank.sounds.insert(
+        Sounds::GlassCrack,
+        asset_server.load("audio/glass-crack.ogg"),
+    );
 
     commands.insert_resource(sound_bank);
 }
