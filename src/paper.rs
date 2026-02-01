@@ -105,7 +105,7 @@ pub(super) fn plugin(app: &mut App) {
         FixedUpdate,
         check_redacted.run_if(in_state(GameState::PLAYING)),
     )
-    .add_systems(Update, next_page);
+    .add_systems(FixedUpdate, next_page);
     // .add_systems(
     //     Update,
     //     (menu_action, button_system).run_if(in_state(GameState::MENU)),
@@ -135,6 +135,8 @@ fn check_redacted(page_q: Query<&Character>) {
 
 pub const PAPER_POS: Vec3 = Vec3::new(0.0, 0.8, 1.0);
 
+#[derive(Component)]
+struct Bruh;
 
 fn next_page(mut commands: Commands, chars: Query<(&Character, Entity)>, key_in: Res<ButtonInput<KeyCode>>,
     mut page: Single<&mut Page>,
@@ -147,6 +149,7 @@ fn next_page(mut commands: Commands, chars: Query<(&Character, Entity)>, key_in:
         // let page_string = "That's all the family news that we're allowed to talk about. We really hope you'll come and visit us soon. I mean we're literally begging you to visit us. And make it quick before they <kill us> Now it's time for Christmas dinner - I think the robots sent us a pie! You know I love my soylent green.";
     // let page_string = get_text_file("assets/text/beemovie.txt") .expect("CAN't LOAD BEE MOVIE");
 
+    let mut batch_spawn: Vec<(Text3d, Text3dBounds, Text3dStyling, MeshMaterial3d<StandardMaterial>, Transform, Mesh3d, Character, DespawnOnExit<GameState>)> = Vec::new();
     page.page_num += 1;
     let x_offset = 0.022;
     let y_offset = 0.032;
@@ -159,7 +162,6 @@ fn next_page(mut commands: Commands, chars: Query<(&Character, Entity)>, key_in:
     let mut total_chars = 0;
     let mut chars_skipped: u32 = 0;
     let page_string = page.pages.pages.get(page.page_num as usize).expect("Can't get page at index");
-    println!("{}", page_string);
     for word in page_string.split(" ") {
         if row > max_height {
             break
@@ -177,7 +179,7 @@ fn next_page(mut commands: Commands, chars: Query<(&Character, Entity)>, key_in:
                 to_redact = false;
                 continue;
             }
-            commands.spawn((
+            batch_spawn.push((
                 Text3d::new(c),
                 Text3dBounds { width: 260.0 },
                 Text3dStyling {
@@ -229,6 +231,7 @@ fn next_page(mut commands: Commands, chars: Query<(&Character, Entity)>, key_in:
     }
     page.total_chars += total_chars;
     page.to_redact += total_to_redact;
+    commands.spawn_batch(batch_spawn);
     }
 }
 
