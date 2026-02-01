@@ -115,7 +115,7 @@ fn mouse_draw_system(
         }
         let distance = last_pos.distance(current_pos);
         ink_supply.0 -= distance / 100.0;
-        println!("{}", ink_supply.0);
+        // println!("{}", ink_supply.0);
     } else {
         commands.trigger(SoundEvent(Sounds::VineBoom.clone()));
         // First click stroke

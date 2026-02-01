@@ -68,7 +68,7 @@ fn check_redacted(page_q: Query<&Character>) {
     // for character in page_q.iter() {
 
     // }
-    println!("is_redacted: {}, to_redact: {}", total_redacted, to_redact);
+    // println!("is_redacted: {}, to_redact: {}", total_redacted, to_redact);
 }
 
 pub const PAPER_POS: Vec3 = Vec3::new(0.0, 0.8, 1.0);

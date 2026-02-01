@@ -129,7 +129,7 @@ fn ray_cast_system(
             if character.to_redact {
                 character.is_redacted = true;
             }
-            println!("redacted?, {}", character.to_redact);
+            // println!("redacted?, {}", character.to_redact);
         }
         // println!("{:?}", hits);
     }
@@ -164,7 +164,7 @@ fn marker_animation_change(
             continue;
         };
         if keyboard_input.just_pressed(KeyCode::Enter) {
-            println!("Change?");
+            // println!("Change?");
             animations.current_annimation =
                 (animations.current_annimation + 1) % animations.animations.len();
 
