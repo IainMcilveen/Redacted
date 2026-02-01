@@ -82,6 +82,10 @@ fn mouse_draw_system(
     }
 
     let (marker, mut ink_supply) = marker_q.into_inner();
+    if !marker.can_draw{
+        println!("Can't draw!");
+        return;
+    }
     let location: Vec3;
     if let Some(val) = marker.tip_location {
         location = val;
@@ -117,8 +121,10 @@ fn mouse_draw_system(
         if !ink_supply.1{
             println!("{:?}", ink_supply.0);
             let distance = last_pos.distance(current_pos);
-            // if ink_supply
             ink_supply.0 -= distance / 10.0;
+            if ink_supply.0 < 0.0{
+                ink_supply.0 = 0.0;
+            }
         }
         // println!("{}", ink_supply.0);
     } else {
