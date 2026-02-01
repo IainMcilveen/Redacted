@@ -1,7 +1,9 @@
+use bevy::math::ops::sin;
+
+use bevy::color::palettes::css;
 use bevy::image::{ImageAddressMode, ImageLoaderSettings, ImageSampler, ImageSamplerDescriptor};
-use bevy::math::{Affine2, VectorSpace};
 use bevy::math::ops::floor;
-use bevy::{color::palettes::css};
+use bevy::math::{Affine2, VectorSpace};
 use bevy::prelude::*;
 use bevy_rich_text3d::{Text3d, Text3dBounds, Text3dStyling, TextAtlas, Weight};
 use bevy_sprite3d::{Sprite3d, Sprite3dPlugin};
@@ -14,8 +16,8 @@ use crate::{CountdownTimer, LIFETIME};
 // pub const PLANNER_POS: Vec3 = Vec3::new(0.65, 0.78, 0.9);
 pub const BOSS_POS: Vec3 = Vec3::new(-4.0, 0.5, 7.0);
 pub const PLANNER_POS: Vec3 = Vec3::new(-3.0, 2.0, 7.0);
+pub const BOB_VALUE: f32 = 0.1;
 const BOSS_MODEL_PATH: &str = "models/boss.glb";
-
 
 #[derive(Component)]
 struct Planner;
@@ -23,13 +25,13 @@ struct Planner;
 #[derive(Component)]
 struct Boss;
 
-
 #[derive(Component)]
 struct PlannerText;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(GameState::PLAYING), setup)
-    .add_systems(FixedUpdate, update_scores);
+        .add_systems(Update, bob_boss.run_if(in_state(GameState::PLAYING)))
+        .add_systems(FixedUpdate, update_scores);
 }
 
 fn setup(
@@ -39,7 +41,13 @@ fn setup(
     asset_server: Res<AssetServer>,
 ) {
     commands.spawn((
-        Mesh3d(meshes.add(Plane3d::new(Vec3::NEG_Z, Vec2::splat(0.5)).mesh().size(1.9, 1.5))),
+        Mesh3d(
+            meshes.add(
+                Plane3d::new(Vec3::NEG_Z, Vec2::splat(0.5))
+                    .mesh()
+                    .size(1.9, 1.5),
+            ),
+        ),
         // MeshMaterial3d(materials.add(Color::WHITE)),
         MeshMaterial3d(materials.add(StandardMaterial {
             base_color: Color::from(css::WHITE),
@@ -48,23 +56,30 @@ fn setup(
             emissive: LinearRgba::new(1.0, 1.0, 1.0, 1.0),
             ..default()
         })),
-        Transform::from_translation(PLANNER_POS - Vec3::new(0.0,0.001,-0.001)),
+        Transform::from_translation(PLANNER_POS - Vec3::new(0.0, 0.001, -0.001)),
         Planner,
         DespawnOnExit(GameState::PLAYING),
     ));
     commands.spawn((
-        Mesh3d(meshes.add(Plane3d::new(Vec3::NEG_Z, Vec2::splat(0.5)).mesh().size(1.95, 1.55))),
+        Mesh3d(
+            meshes.add(
+                Plane3d::new(Vec3::NEG_Z, Vec2::splat(0.5))
+                    .mesh()
+                    .size(1.95, 1.55),
+            ),
+        ),
         MeshMaterial3d(materials.add(Color::BLACK)),
-        Transform::from_translation(PLANNER_POS - Vec3::new(0.0,0.001,-0.002)),
+        Transform::from_translation(PLANNER_POS - Vec3::new(0.0, 0.001, -0.002)),
         Planner,
         DespawnOnExit(GameState::PLAYING),
     ));
 
     commands.spawn((
         PlannerText,
+        Planner,
         Text3d::new("SCORE"),
-        Text3dBounds {width: 200.0},
-        Text3dStyling{
+        Text3dBounds { width: 200.0 },
+        Text3dStyling {
             font: "monospace".into(),
             weight: Weight::BOLD,
             ..default()
@@ -77,26 +92,48 @@ fn setup(
             ..default()
         })),
         Mesh3d::default(),
-        Transform::from_translation(PLANNER_POS).with_scale(Vec3::splat(0.01))
-        .with_rotation(Quat::from_rotation_x(3.14) * Quat::from_rotation_z(3.14)),
-                        // Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)
-                        //     * Quat::from_rotation_z(std::f32::consts::PI),),
+        Transform::from_translation(PLANNER_POS)
+            .with_scale(Vec3::splat(0.01))
+            .with_rotation(Quat::from_rotation_x(3.14) * Quat::from_rotation_z(3.14)),
+        // Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)
+        //     * Quat::from_rotation_z(std::f32::consts::PI),),
         DespawnOnExit(GameState::PLAYING),
     ));
 
-    let ink_mesh_scene =
+    let boss_scene =
         SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset(BOSS_MODEL_PATH)));
+
+    // BOSS
     commands.spawn((
         Boss,
-        ink_mesh_scene,
-        Transform::from_scale(Vec3::new(0.5, 0.5, 0.5)).with_translation(BOSS_POS)
-        .with_rotation(Quat::from_rotation_y(2.8)),
+        boss_scene,
+        Transform::from_scale(Vec3::new(0.5, 0.5, 0.5))
+            .with_translation(BOSS_POS)
+            .with_rotation(Quat::from_rotation_y(2.8)),
         DespawnOnExit(GameState::PLAYING),
     ));
 }
 
-fn update_scores(score_res: Res<PageScores>, mut text3d: Single<&mut Text3d,With<PlannerText>>, page: Single<&Page>){
-    if score_res.is_changed(){
+fn bob_boss(
+    time: Res<Time>,
+    mut boss: Single<&mut Transform, With<Boss>>,
+    mut planner: Query<&mut Transform, (With<Planner>, Without<Boss>)>
+) {
+    let t = sin(time.elapsed_secs() * 2.1);
+    boss.translation.y = BOSS_POS.y + t * BOB_VALUE;
+
+    for mut planner_transform in planner {
+        planner_transform.translation.y = PLANNER_POS.y + t * BOB_VALUE;
+    }
+    // text.translation.y = PLANNER_POS.y + t * BOB_VALUE;
+}
+
+fn update_scores(
+    score_res: Res<PageScores>,
+    mut text3d: Single<&mut Text3d, With<PlannerText>>,
+    page: Single<&Page>,
+) {
+    if score_res.is_changed() {
         let correct_redacted = score_res.page_redaction;
         let unredacted = score_res.page_total - correct_redacted;
 
