@@ -20,6 +20,11 @@ use crate::{pen::Marker, text_asset::get_text_file};
 
 const BUTTON_MODEL_PATH: &str = "models/next_button.glb";
 pub const BTN_POS: Vec3 = Vec3::new(0.5, 0.78, 1.3);
+
+
+const MAX_LENGTH: i32 = 24;
+const MAX_HEIGHT: i32 = 25;
+
 use crate::paint::ClearEvent;
 
 use super::GameState;
@@ -104,20 +109,18 @@ impl PageText {
 
         let mut row = 0;
         let mut col: i32 = 0;
-        let max_length = 24;
-        let max_height = 25;
         let mut total_chars = 0;
         let mut to_redact = false;
         let mut current_page_string = String::new();
         for word in full_text.split(" ") {
-            if row > max_height {
+            if row > MAX_HEIGHT {
                 pages.push(current_page_string.clone());
                 current_page_string = String::new();
                 row = 0;
                 col = 0
             }
             let word_string = word.to_string();
-            if col + word_string.len() as i32 > max_length {
+            if col + word_string.len() as i32 > MAX_LENGTH {
                 row += 1;
                 col = 0;
             }
@@ -260,8 +263,6 @@ fn next_page(
         let y_offset = 0.032;
         let mut row = 0;
         let mut col: i32 = 0;
-        let max_length = 24;
-        let max_height = 25;
         let mut to_redact = false;
         let mut total_to_redact = 0;
         let mut total_chars = 0;
@@ -273,11 +274,11 @@ fn next_page(
             .get(page.page_num as usize)
             .expect("Can't get page at index");
         for word in page_string.split(" ") {
-            if row > max_height {
+            if row > MAX_HEIGHT {
                 break;
             }
             let word_string = word.to_string();
-            if col + word_string.len() as i32 > max_length {
+            if col + word_string.len() as i32 > MAX_LENGTH {
                 row += 1;
                 col = 0;
             }
@@ -322,7 +323,7 @@ fn next_page(
                         Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)
                             * Quat::from_rotation_z(std::f32::consts::PI),
                     )
-                    .with_scale(Vec3::splat(0.0022)),
+                    .with_scale(Vec3::splat(0.0025)),
                     Mesh3d::default(),
                     Character {
                         to_redact: to_redact,

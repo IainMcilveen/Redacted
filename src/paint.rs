@@ -129,7 +129,7 @@ fn mouse_draw_system(
             let lerped_pos = last_pos.lerp(current_pos, i as f32 / steps as f32);
 
             commands.spawn((
-                Sprite::from_color(Color::srgb(0.0, 0.0, 0.0), Vec2::splat(25.0)),
+                Sprite::from_color(Color::srgb(0.0, 0.0, 0.0), Vec2::splat(26.0)),
                 Transform::from_xyz(lerped_pos.x, lerped_pos.y, 0.0),
                 CANVAS_LAYER,
                 Paint,
