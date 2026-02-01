@@ -106,6 +106,7 @@ fn setup_mesh_and_animation(
     // Store the animation graph as an asset.
 
     let graph_handle = graphs.add(graph);
+
     commands.insert_resource(PenAnimations {
         animations: node_indices,
         current_annimation: 1,
@@ -261,7 +262,6 @@ fn marker_animation_change(
             continue;
         };
         if keyboard_input.just_pressed(KeyCode::Enter) {
-            // println!("Change?");
             animations.current_annimation =
                 (animations.current_annimation + 1) % animations.animations.len();
 
@@ -279,6 +279,9 @@ fn setup_scene_once_loaded(
     animations: Res<PenAnimations>,
     mut players: Query<(Entity, &mut AnimationPlayer), Added<AnimationPlayer>>,
 ) {
+    if !animations.is_changed() {
+        return;
+    }
     for (entity, mut player) in &mut players {
         let mut transitions = AnimationTransitions::new();
 
@@ -342,9 +345,9 @@ fn mouse_motion_system(
     if delta != Vec2::ZERO {
         // println!("{:?}", delta);
         marker.translation += Vec3 {
-            x: -delta.x / 400.0,
+            x: -delta.x / 500.0,
             y: 0.0,
-            z: -delta.y / 400.0,
+            z: -delta.y / 500.0,
         };
         // println!("{:?}", marker.translation);
     }

@@ -1,5 +1,7 @@
 use bevy::{audio::PlaybackMode, platform::collections::HashMap, prelude::*};
 
+use crate::GameState;
+
 #[derive(Debug, Hash, PartialEq, Eq, Copy, Clone)]
 pub enum Sounds {
     VineBoom,
@@ -63,6 +65,7 @@ fn play_sound(event: On<SoundEvent>, mut commands: Commands, mut sound_bank: Res
             AudioPlayer::new(handle.clone()),
             event.setting,
             SoundComponent,
+            DespawnOnExit(GameState::PLAYING),
         ));
 
         match event.setting.mode {
