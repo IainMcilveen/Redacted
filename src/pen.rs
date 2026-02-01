@@ -168,7 +168,7 @@ fn ray_cast_system(
     gizmos.line(ray.origin, ray.origin + dir_vec, Color::from(css::RED));
 
     for (ent, ray_mesh_hit) in hits {
-        println!("{:?}", ent);
+        // println!("{:?}", ent);
 
         // update marker tip location for painting
         marker.tip_location = Some(ray_mesh_hit.point);
