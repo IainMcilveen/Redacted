@@ -22,7 +22,7 @@ struct TemporaryTimer(Timer);
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(Sprite3dPlugin)
-        .add_systems(OnEnter(GameState::PAGETEST), setup)
+        .add_systems(OnEnter(GameState::PLAYING), setup)
         .add_systems(Update, update_glass_cracks)
         .add_systems(Update, update_looking);
 

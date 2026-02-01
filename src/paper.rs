@@ -42,7 +42,7 @@ pub(super) fn plugin(app: &mut App) {
         font_paths: vec!["assets/fonts/SpaceMono-Regular.ttf".to_owned()],
         ..default()
     })
-    .add_systems(OnEnter(GameState::PAGETEST), setup)
+    .add_systems(OnEnter(GameState::PLAYING), setup)
     .add_systems(FixedUpdate, check_redacted);
     // .add_systems(
     //     Update,

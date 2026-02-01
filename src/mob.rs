@@ -16,7 +16,7 @@ struct MobMember {
 }
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(GameState::PAGETEST), setup)
+    app.add_systems(OnEnter(GameState::PLAYING), setup)
         .add_systems(Update, update_mob);
 }
 

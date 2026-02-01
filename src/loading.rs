@@ -48,7 +48,7 @@ fn check_ready(
         .get_load_state(assets.wall.id())
         .is_some_and(|asset| asset.is_loaded())
     {
-        next_state.set(GameState::PAGETEST);
+        next_state.set(GameState::PLAYING);
     }
 }
 
@@ -61,7 +61,7 @@ fn check_ready(
 //     for event in events.read() {
 //         if event.is_loaded_with_dependencies(&rpg_sprite_folder.0) {
 //             println!("Moving to game state...");
-//             next_state.set(GameState::PAGETEST);
+//             next_state.set(GameState::PLAYING);
 //         }
 //     }
 // }

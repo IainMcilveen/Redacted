@@ -27,7 +27,6 @@ pub enum GameState {
     #[default]
     LOADING,
     MENU,
-    PAGETEST,
     PLAYING,
 }
 
