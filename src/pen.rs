@@ -199,6 +199,7 @@ fn ray_cast_system(
 
                 // update page scores
                 page_scores.correctly_redacted += 1;
+                page_scores.page_redaction += 1;
 
                 match marker.tip_location {
                     Some(pos) => {
