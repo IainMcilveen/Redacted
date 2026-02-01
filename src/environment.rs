@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use bevy_sprite3d::{Sprite3d, Sprite3dPlugin};
 
 use super::GameState;
-use crate::audio::{SoundEvent, Sounds};
+use crate::audio::{SoundBank, SoundEvent, Sounds};
 use crate::loading::GameAssets;
 use crate::{CountdownTimer, LIFETIME};
 
@@ -28,6 +28,9 @@ struct LookingAt {
 
 #[derive(Component)]
 pub struct Desk;
+
+#[derive(Component)]
+pub struct MobSound;
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone, Default)]
 pub enum Looks {
@@ -131,6 +134,8 @@ fn update_glass_cracks(
     mut glass_crack_prev: ResMut<LastCrackStage>,
     mut query: Query<&mut Sprite, With<GlassCrackWall>>,
     assets: Res<GameAssets>,
+    sound_bank: ResMut<SoundBank>,
+    sounds: Query<Entity, With<MobSound>>,
 ) {
     let progress = timer.0.elapsed_secs() / LIFETIME;
     glass_crack_stage.0 = (floor(progress * assets.glass_cracks.len() as f32) as usize)
@@ -139,10 +144,31 @@ fn update_glass_cracks(
     // trigger crack sound on stage change
     if glass_crack_prev.0 != glass_crack_stage.0 {
         glass_crack_prev.0 = glass_crack_stage.0;
-        commands.trigger(SoundEvent {
-            sound: Sounds::GlassCrack,
-            setting: PlaybackSettings::ONCE,
-        })
+        if glass_crack_stage.0 < 8 {
+            commands.trigger(SoundEvent {
+                sound: Sounds::GlassCrack,
+                setting: PlaybackSettings::ONCE,
+            });
+        } else if glass_crack_stage.0 == 8 {
+            commands.trigger(SoundEvent {
+                sound: Sounds::GlassShatter,
+                setting: PlaybackSettings::ONCE,
+            });
+        }
+
+        // reset mob sound
+        if let Some(handle) = sound_bank.sounds.get(&Sounds::Mob) {
+            for entity in &sounds {
+                commands.entity(entity).despawn();
+            }
+
+            commands.spawn((
+                AudioPlayer::new(handle.clone()),
+                PlaybackSettings::LOOP.with_volume(bevy::audio::Volume::Linear(progress)),
+                MobSound,
+                DespawnOnExit(GameState::PLAYING),
+            ));
+        }
     }
     for mut sprite in &mut query {
         sprite.image = assets.glass_cracks[glass_crack_stage.0].clone();
