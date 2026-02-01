@@ -151,7 +151,7 @@ fn ray_cast_system(
     mut commands: Commands,
     mut raycast: MeshRayCast,
     mut pen_q: Single<(&Transform, &mut Marker), With<Marker>>,
-    mut q: Query<&mut Character>,
+    mut characters: Query<(&mut Character, &Transform)>,
     mut desk_q: Query<&mut Desk>,
     mut page_q: Query<&mut Page>,
     ignore_q: Query<Entity, With<PaintPlane>>,
@@ -179,8 +179,7 @@ fn ray_cast_system(
     let filter = |entity| !ignore_q.contains(entity);
     let settings = MeshRayCastSettings::default().with_filter(&filter);
     let hits = raycast.cast_ray(ray, &settings);
-    
-    // gizmos.line(ray.origin, ray.origin + dir_vec, Color::from(css::RED));
+    gizmos.line(ray.origin, ray.origin + dir_vec, Color::from(css::RED));
 
     for (ent, ray_mesh_hit) in hits {
         // println!("{:?}", ent);
@@ -192,11 +191,11 @@ fn ray_cast_system(
             continue;
         }
 
-        if let Ok(mut character) = q.get_mut(*ent) {
+        if let Ok(mut character) = characters.get_mut(*ent) {
             marker.off_page = false;
 
-            if character.to_redact && !character.is_redacted {
-                character.is_redacted = true;
+            if character.0.to_redact && !character.0.is_redacted {
+                character.0.is_redacted = true;
 
                 // update page scores
                 page_scores.correctly_redacted += 1;
@@ -211,7 +210,33 @@ fn ray_cast_system(
                     }
                     _ => {}
                 }
-            } else if !character.is_redacted {
+            } else if !character.0.is_redacted {
+                // character.0.is_redacted = true;
+
+                // // decrement counter if wrong character is redacted
+                // countdown.0.tick(Duration::from_secs(1));
+
+                // match marker.tip_location {
+                //     Some(pos) => {
+                //         commands.trigger(FeedbackEvent {
+                //             feedback: Feedbacks::Wrong,
+                //             pos: pos,
+                //         });
+                //     }
+                //     _ => {}
+                // }
+            }
+            // println!("redacted?, {}", character.to_redact);
+        } else if let Ok(mut _desk) = page_q.get_mut(*ent) {
+            marker.off_page = false;
+        } else if let Ok(mut _desk) = desk_q.get_mut(*ent) {
+            marker.off_page = true;
+        }
+    }
+
+    if let Some(tip_position) = marker.tip_location {
+        for (mut character, transform) in characters {
+            if transform.translation.distance(tip_position) < 0.005 {
                 character.is_redacted = true;
 
                 // decrement counter if wrong character is redacted
@@ -227,13 +252,7 @@ fn ray_cast_system(
                     _ => {}
                 }
             }
-            // println!("redacted?, {}", character.to_redact);
-        } else if let Ok(mut _desk) = page_q.get_mut(*ent) {
-            marker.off_page = false;
-        } else if let Ok(mut _desk) = desk_q.get_mut(*ent) {
-            marker.off_page = true;
         }
-        // println!("{:?}", hits);
     }
 }
 
