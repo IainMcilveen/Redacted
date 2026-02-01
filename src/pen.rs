@@ -225,7 +225,7 @@ fn marker_animation_change(
             continue;
         };
         if keyboard_input.just_pressed(KeyCode::Enter) {
-            println!("Change?");
+            // println!("Change?");
             animations.current_annimation =
                 (animations.current_annimation + 1) % animations.animations.len();
 
