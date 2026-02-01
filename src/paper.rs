@@ -21,7 +21,6 @@ use crate::{pen::Marker, text_asset::get_text_file};
 const BUTTON_MODEL_PATH: &str = "models/next_button.glb";
 pub const BTN_POS: Vec3 = Vec3::new(0.5, 0.78, 1.3);
 
-
 const MAX_LENGTH: i32 = 24;
 const MAX_HEIGHT: i32 = 25;
 
@@ -160,6 +159,9 @@ pub struct PageScores {
     pub total_chars: u32,
     pub total_to_redact: u32,
     pub correctly_redacted: u32,
+
+    pub page_redaction: u32,
+    pub page_total: u32,
 }
 
 // #[derive(Resource)]
@@ -189,11 +191,7 @@ pub(super) fn plugin(app: &mut App) {
         font_paths: vec!["assets/fonts/SpaceMono-Regular.ttf".to_owned()],
         ..default()
     })
-    .insert_resource(PageScores {
-        total_chars: 0,
-        total_to_redact: 0,
-        correctly_redacted: 0,
-    })
+    .insert_resource(PageScores::default())
     // .add_systems(Startup, setup_animation)
     .add_systems(OnEnter(GameState::PLAYING), (setup))
     .add_systems(
@@ -245,6 +243,8 @@ fn next_page(
             commands.entity(ent).despawn();
         }
         commands.trigger(ClearEvent);
+        page_scores.page_redaction = 0;
+        page_scores.page_total = 0;
         // let page_string = "That's all the family news that we're allowed to talk about. We really hope you'll come and visit us soon. I mean we're literally begging you to visit us. And make it quick before they <kill us> Now it's time for Christmas dinner - I think the robots sent us a pie! You know I love my soylent green.";
         // let page_string = get_text_file("assets/text/beemovie.txt") .expect("CAN't LOAD BEE MOVIE");
 
@@ -347,6 +347,7 @@ fn next_page(
         // update page score resource
         page_scores.total_chars += total_chars;
         page_scores.total_to_redact += total_to_redact;
+        page_scores.page_total += total_to_redact
     }
 }
 
@@ -430,6 +431,8 @@ fn setup(
     page_scores.correctly_redacted = 0;
     page_scores.total_chars = 0;
     page_scores.total_to_redact = 0;
+    page_scores.page_redaction = 0;
+    page_scores.page_total = 0;
 
     // commands.spawn((
     //     Text3d::new("123456789098765432123456789098765 In accordance with the determinations reached during the most recent closed procedural interval, all affected parties are advised that preliminary conditions have now been satisfied and that subsequent measures will proceed without further notice.\n\nAny variance from the established sequence, whether intentional or incidental, will be documented and reconciled under the appropriate review instruments. Stakeholders should consider this communication to constitute sufficient advisory of impending adjustments, the full scope of which will be disclosed only upon completion of the requisite confirmations."),
