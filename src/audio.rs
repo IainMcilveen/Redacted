@@ -10,6 +10,8 @@ pub enum Sounds {
     Correct,
     Wrong,
     GlassCrack,
+    GlassShatter,
+    Mob,
 }
 
 #[derive(Event)]
@@ -23,7 +25,7 @@ pub struct StopLoopEvent;
 
 #[derive(Resource, Default)]
 pub struct SoundBank {
-    sounds: HashMap<Sounds, Handle<AudioSource>>,
+    pub sounds: HashMap<Sounds, Handle<AudioSource>>,
     pub looping: bool,
 }
 
@@ -60,6 +62,13 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         Sounds::GlassCrack,
         asset_server.load("audio/glass-crack.ogg"),
     );
+    sound_bank.sounds.insert(
+        Sounds::GlassShatter,
+        asset_server.load("audio/glass-smash.ogg"),
+    );
+    sound_bank
+        .sounds
+        .insert(Sounds::Mob, asset_server.load("audio/mob.ogg"));
 
     commands.insert_resource(sound_bank);
 }
