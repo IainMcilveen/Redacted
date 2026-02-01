@@ -6,6 +6,7 @@ use bevy_sprite3d::Sprite3d;
 use rand::Rng;
 
 use crate::GameState;
+use crate::environment::PIXELS_PER_METRE;
 use crate::loading::GameAssets;
 
 #[derive(Component)]
@@ -30,7 +31,7 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>) {
             },
             Sprite::from_image(assets.mob_sprites[i % assets.mob_sprites.len()].clone()),
             Sprite3d {
-                pixels_per_metre: 40.0,
+                pixels_per_metre: PIXELS_PER_METRE,
                 alpha_mode: AlphaMode::Blend,
                 unlit: true,
                 ..default()

@@ -6,6 +6,8 @@ use bevy_sprite3d::{Sprite3d, Sprite3dPlugin};
 use super::GameState;
 use crate::loading::GameAssets;
 
+pub const PIXELS_PER_METRE: f32 = 30.0;
+
 #[derive(Component)]
 struct GlassCrackWall;
 
@@ -42,7 +44,7 @@ fn setup(
     commands.spawn((
         Sprite::from_image(assets.wall.clone()),
         Sprite3d {
-            pixels_per_metre: 40.0,
+            pixels_per_metre: PIXELS_PER_METRE,
             alpha_mode: AlphaMode::Blend,
             unlit: true,
             ..default()
@@ -53,7 +55,7 @@ fn setup(
     commands.spawn((
         Sprite::from_image(assets.glass_cracks[0].clone()),
         Sprite3d {
-            pixels_per_metre: 40.0,
+            pixels_per_metre: PIXELS_PER_METRE,
             alpha_mode: AlphaMode::Blend,
             unlit: true,
             ..default()
