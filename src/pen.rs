@@ -323,14 +323,11 @@ fn check_refill(marker_q: Single<(&Marker, &mut InkSupplyPercent)>) {
     }
 }
 
-fn can_draw_check(
-    mut single: Single<(&mut Marker, &InkSupplyPercent)>,
-    pen_anim: Res<PenAnimations>,
-) {
+fn can_draw_check(single: Single<(&mut Marker, &InkSupplyPercent)>, pen_anim: Res<PenAnimations>) {
     let (mut marker, ink_sup) = single.into_inner();
     if ink_sup.0 <= 0.0 {
         marker.can_draw = false;
-    } else if (pen_anim.current_annimation == 0) {
+    } else if pen_anim.current_annimation == 0 {
         marker.can_draw = false
     } else {
         marker.can_draw = true;
