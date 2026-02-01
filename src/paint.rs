@@ -140,7 +140,7 @@ fn mouse_draw_system(
         if !ink_supply.1 {
             // println!("{:?}", ink_supply.0);
             let distance = last_pos.distance(current_pos);
-            ink_supply.0 -= distance / 10.0;
+            ink_supply.0 -= distance / 20.0;
             if ink_supply.0 < 0.0 {
                 ink_supply.0 = 0.0;
             }
