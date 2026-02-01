@@ -14,7 +14,7 @@ pub const PIXELS_PER_METRE: f32 = 30.0;
 struct GlassCrackWall;
 
 #[derive(Resource)]
-struct GlassCrackStage(usize);
+pub struct GlassCrackStage(pub usize);
 
 #[derive(Resource)]
 struct LookingAt(Vec3);
@@ -60,7 +60,7 @@ fn setup(
             unlit: true,
             ..default()
         },
-        Transform::from_xyz(0.0, 0.0, 10.001),
+        Transform::from_xyz(0.0, 0.0, 10.1),
         GlassCrackWall,
         DespawnOnExit(GameState::PLAYING),
     ));
@@ -102,11 +102,10 @@ fn update_glass_cracks(
     assets: Res<GameAssets>,
 ) {
     let progress = timer.0.elapsed_secs() / LIFETIME;
-    glass_crack_stage.0 = floor(progress * assets.glass_cracks.len() as f32) as usize;
+    glass_crack_stage.0 = (floor(progress * assets.glass_cracks.len() as f32) as usize)
+        .clamp(0, assets.glass_cracks.len() - 1);
     for mut sprite in &mut query {
-        sprite.image = assets.glass_cracks
-            [glass_crack_stage.0.clamp(0, assets.glass_cracks.len() - 1)]
-        .clone();
+        sprite.image = assets.glass_cracks[glass_crack_stage.0].clone();
     }
 }
 
