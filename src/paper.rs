@@ -18,9 +18,11 @@ use bevy_rich_text3d::{
 
 use crate::{pen::Marker, text_asset::get_text_file};
 
-use super::GameState;
 const BUTTON_MODEL_PATH: &str = "models/next_button.glb";
 pub const BTN_POS: Vec3 = Vec3::new(0.5, 0.78, 1.3);
+use crate::{paint::ClearEvent};
+
+use super::GameState;
 struct PageText {
     pages: Vec<String>,
 }
@@ -227,6 +229,7 @@ fn next_page(
         for (c, ent) in chars.iter() {
             commands.entity(ent).despawn();
         }
+        commands.trigger(ClearEvent);
         // let page_string = "That's all the family news that we're allowed to talk about. We really hope you'll come and visit us soon. I mean we're literally begging you to visit us. And make it quick before they <kill us> Now it's time for Christmas dinner - I think the robots sent us a pie! You know I love my soylent green.";
         // let page_string = get_text_file("assets/text/beemovie.txt") .expect("CAN't LOAD BEE MOVIE");
 

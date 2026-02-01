@@ -17,6 +17,12 @@ struct SecondaryCamera;
 #[derive(Component)]
 pub struct PaintPlane;
 
+#[derive(Component)]
+pub struct Paint;
+
+#[derive(Event)]
+pub struct ClearEvent;
+
 const CANVAS_LAYER: RenderLayers = RenderLayers::layer(1);
 
 pub(super) fn plugin(app: &mut App) {
@@ -25,7 +31,8 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(
             Update,
             mouse_draw_system.run_if(in_state(GameState::PLAYING)),
-        );
+        )
+        .add_observer(clear_page);
 }
 
 fn setup(
@@ -74,6 +81,12 @@ fn setup(
     ));
 }
 
+fn clear_page(_event: On<ClearEvent>, mut commands: Commands, query: Query<Entity, With<Paint>>) {
+    for entity in &query {
+        commands.entity(entity).despawn();
+    }
+}
+
 fn mouse_draw_system(
     buttons: Res<ButtonInput<MouseButton>>,
     marker_q: Single<(&Marker, &mut InkSupplyPercent), With<Marker>>,
@@ -119,6 +132,7 @@ fn mouse_draw_system(
                 Sprite::from_color(Color::srgb(0.0, 0.0, 0.0), Vec2::splat(25.0)),
                 Transform::from_xyz(lerped_pos.x, lerped_pos.y, 0.0),
                 CANVAS_LAYER,
+                Paint,
                 DespawnOnExit(GameState::PLAYING),
             ));
         }

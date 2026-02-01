@@ -65,7 +65,10 @@ fn main() {
         )))
         .add_plugins(MeshPickingPlugin)
         .init_state::<GameState>()
-        .add_systems(Update, update_countdown)
+        .add_systems(
+            Update,
+            update_countdown.run_if(in_state(GameState::PLAYING)),
+        )
         .add_plugins(audio::plugin)
         .add_plugins(loading::plugin)
         .add_plugins(menu::plugin)

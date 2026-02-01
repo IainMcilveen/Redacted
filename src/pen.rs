@@ -8,10 +8,11 @@ use bevy::{
 
 use crate::{
     CountdownTimer,
-    audio::{SoundEvent, Sounds, StopLoopEvent},
+    audio::{SoundBank, SoundEvent, Sounds, StopLoopEvent},
+    environment::Desk,
     feedback::{FeedbackEvent, Feedbacks},
     paint::PaintPlane,
-    paper::Character,
+    paper::{Character, Page},
 };
 
 use super::GameState;
@@ -19,15 +20,14 @@ use super::GameState;
 pub(super) fn plugin(app: &mut App) {
     app
         // .add_systems(Startup, set_mouse_setting)
-        .add_systems(Startup, setup_mesh_and_animation)
+        .add_systems(Startup, (setup_mesh_and_animation, create_ink_meter))
         .add_systems(OnEnter(GameState::PLAYING), set_mouse_setting)
-        .add_systems(Startup, create_ink_meter)
         .add_systems(
             Update,
             (
                 mouse_motion_system,
                 marker_animation_change,
-                setup_scene_once_loaded,
+                setup_scene_once_loaded, // Does this really need to happen in an update, could we move it to startup?
                 update_ink_supply_meter,
                 pen_drop,
                 ray_cast_system,
@@ -37,7 +37,9 @@ pub(super) fn plugin(app: &mut App) {
         )
         .add_systems(
             FixedUpdate,
-            (can_draw_check, check_refill).run_if(in_state(GameState::PLAYING)),
+            (can_draw_check, check_refill, handle_sound_loops)
+                .run_if(in_state(GameState::PLAYING))
+                .chain(),
         );
 }
 
@@ -67,6 +69,7 @@ struct InkSupplyMeter();
 pub struct Marker {
     pub tip_location: Option<Vec3>,
     pub can_draw: bool,
+    pub off_page: bool,
 }
 
 #[derive(Component)]
@@ -141,6 +144,8 @@ fn ray_cast_system(
     mut raycast: MeshRayCast,
     mut pen_q: Single<(&Transform, &mut Marker), With<Marker>>,
     mut q: Query<&mut Character>,
+    mut desk_q: Query<&mut Desk>,
+    mut page_q: Query<&mut Page>,
     ignore_q: Query<Entity, With<PaintPlane>>,
     mut gizmos: Gizmos,
     mouse: Res<ButtonInput<MouseButton>>,
@@ -178,6 +183,8 @@ fn ray_cast_system(
         }
 
         if let Ok(mut character) = q.get_mut(*ent) {
+            marker.off_page = false;
+
             if character.to_redact && !character.is_redacted {
                 character.is_redacted = true;
 
@@ -206,8 +213,11 @@ fn ray_cast_system(
                     _ => {}
                 }
             }
-
             // println!("redacted?, {}", character.to_redact);
+        } else if let Ok(mut _desk) = page_q.get_mut(*ent) {
+            marker.off_page = false;
+        } else if let Ok(mut _desk) = desk_q.get_mut(*ent) {
+            marker.off_page = true;
         }
         // println!("{:?}", hits);
     }
@@ -227,25 +237,17 @@ fn set_mouse_setting(mut windows: Query<(&Window, &mut CursorOptions)>) {
 fn pen_drop(
     mut commands: Commands,
     mouse: Res<ButtonInput<MouseButton>>,
-    mut pen: Single<&mut Transform, With<Marker>>,
+    mut pen: Single<(&mut Transform, &mut Marker)>,
+    mut ink_meter: Single<&mut InkSupplyPercent>,
 ) {
-    // start looping audio if pen dropped
-    if mouse.just_pressed(MouseButton::Left) {
-        commands.trigger(SoundEvent {
-            sound: Sounds::MarkerDrag,
-            setting: PlaybackSettings::LOOP,
-        });
-    }
-
-    // stop looping audio if pen raised
-    if mouse.just_released(MouseButton::Left) {
-        commands.trigger(StopLoopEvent(Sounds::MarkerDrag));
-    }
-
     if mouse.pressed(MouseButton::Left) {
-        pen.translation.y = 0.988;
+        pen.0.translation.y = 0.988;
     } else {
-        pen.translation.y = 1.1;
+        pen.0.translation.y = 1.1;
+
+        // reset refilling and off_page states
+        pen.1.off_page = true;
+        ink_meter.1 = false;
     }
 }
 
@@ -321,14 +323,11 @@ fn check_refill(marker_q: Single<(&Marker, &mut InkSupplyPercent)>) {
     }
 }
 
-fn can_draw_check(
-    mut single: Single<(&mut Marker, &InkSupplyPercent)>,
-    pen_anim: Res<PenAnimations>,
-) {
+fn can_draw_check(single: Single<(&mut Marker, &InkSupplyPercent)>, pen_anim: Res<PenAnimations>) {
     let (mut marker, ink_sup) = single.into_inner();
     if ink_sup.0 <= 0.0 {
         marker.can_draw = false;
-    } else if (pen_anim.current_annimation == 0) {
+    } else if pen_anim.current_annimation == 0 {
         marker.can_draw = false
     } else {
         marker.can_draw = true;
@@ -348,5 +347,39 @@ fn mouse_motion_system(
             z: -delta.y / 400.0,
         };
         // println!("{:?}", marker.translation);
+    }
+}
+
+fn handle_sound_loops(
+    mut commands: Commands,
+    m_q: Single<&Marker>,
+    i_q: Single<&InkSupplyPercent>,
+    sound_bank: Res<SoundBank>,
+) {
+    let refilling = i_q.1;
+    let can_draw = m_q.can_draw;
+    let off_page = m_q.off_page;
+
+    if refilling {
+        if sound_bank.looping {
+            return;
+        }
+        commands.trigger(SoundEvent {
+            sound: Sounds::Slurp,
+            setting: PlaybackSettings::LOOP,
+        });
+    } else if !off_page && can_draw {
+        if sound_bank.looping {
+            return;
+        }
+        commands.trigger(SoundEvent {
+            sound: Sounds::MarkerDrag,
+            setting: PlaybackSettings::LOOP,
+        });
+    } else {
+        if !sound_bank.looping {
+            return;
+        }
+        commands.trigger(StopLoopEvent);
     }
 }

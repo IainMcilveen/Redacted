@@ -45,7 +45,7 @@ fn spawn_feedback(
     match event.feedback {
         Feedbacks::Correct => {
             commands.trigger(SoundEvent {
-                sound: Sounds::VineBoom,
+                sound: Sounds::Correct,
                 setting: PlaybackSettings::ONCE,
             });
             let material = materials.add(StandardMaterial {
@@ -86,7 +86,7 @@ fn spawn_feedback(
         }
         Feedbacks::Wrong => {
             commands.trigger(SoundEvent {
-                sound: Sounds::VineBoom,
+                sound: Sounds::Wrong,
                 setting: PlaybackSettings::ONCE,
             });
             let mesh = meshes.add(Cuboid::new(0.1, 1.0, 0.1));
