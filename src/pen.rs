@@ -7,6 +7,7 @@ use bevy::{
 };
 
 use crate::{
+    CountdownTimer,
     audio::{SoundEvent, Sounds, StopLoopEvent},
     feedback::{FeedbackEvent, Feedbacks},
     paint::PaintPlane,
@@ -28,8 +29,7 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(Update, (pen_drop, ray_cast_system))
         .add_systems(FixedUpdate, can_draw_check)
         .add_systems(FixedUpdate, check_refill);
-
-    }
+}
 
 // An example asset that contains a mesh and animation.
 const GLTF_PATH: &str = "models/marker_2.glb";
@@ -56,7 +56,7 @@ struct InkSupplyMeter();
 #[derive(Component, Default, Clone, Copy)]
 pub struct Marker {
     pub tip_location: Option<Vec3>,
-    pub can_draw: bool
+    pub can_draw: bool,
 }
 
 #[derive(Component)]
@@ -131,6 +131,7 @@ fn ray_cast_system(
     ignore_q: Query<Entity, With<PaintPlane>>,
     mut gizmos: Gizmos,
     mouse: Res<ButtonInput<MouseButton>>,
+    mut countdown: ResMut<CountdownTimer>,
 ) {
     // marker query
     let pen_transform = pen_q.0;
@@ -159,8 +160,12 @@ fn ray_cast_system(
         // update marker tip location for painting
         marker.tip_location = Some(ray_mesh_hit.point);
 
+        if !marker.can_draw {
+            continue;
+        }
+
         if let Ok(mut character) = q.get_mut(*ent) {
-            if character.to_redact {
+            if character.to_redact && !character.is_redacted {
                 character.is_redacted = true;
 
                 match marker.tip_location {
@@ -174,6 +179,9 @@ fn ray_cast_system(
                 }
             } else if !character.is_redacted {
                 character.is_redacted = true;
+
+                // decrement counter if wrong character is redacted
+                countdown.0.tick(Duration::from_secs(1));
 
                 match marker.tip_location {
                     Some(pos) => {
@@ -300,18 +308,18 @@ fn check_refill(marker_q: Single<(&Marker, &mut InkSupplyPercent)>) {
     }
 }
 
-fn can_draw_check(mut single: Single<(&mut Marker, &InkSupplyPercent)>, pen_anim: Res<PenAnimations>){
+fn can_draw_check(
+    mut single: Single<(&mut Marker, &InkSupplyPercent)>,
+    pen_anim: Res<PenAnimations>,
+) {
     let (mut marker, ink_sup) = single.into_inner();
     if ink_sup.0 <= 0.0 {
         marker.can_draw = false;
-    }
-    else if(pen_anim.current_annimation == 0){
+    } else if (pen_anim.current_annimation == 0) {
         marker.can_draw = false
-    }
-    else{
+    } else {
         marker.can_draw = true;
     }
-
 }
 
 fn mouse_motion_system(
