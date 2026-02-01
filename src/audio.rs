@@ -51,7 +51,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .insert(Sounds::MarkerDrag, asset_server.load("audio/marker.ogg"));
     sound_bank
         .sounds
-        .insert(Sounds::Slurp, asset_server.load("audio/slurp.ogg"));
+        .insert(Sounds::Slurp, asset_server.load("audio/slurp2.ogg"));
     sound_bank
         .sounds
         .insert(Sounds::Correct, asset_server.load("audio/correct.ogg"));

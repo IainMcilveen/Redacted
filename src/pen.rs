@@ -405,9 +405,9 @@ fn mouse_motion_system(
     if delta != Vec2::ZERO {
         // println!("{:?}", delta);
         marker.translation += Vec3 {
-            x: -delta.x / 500.0,
+            x: -delta.x / 600.0,
             y: 0.0,
-            z: -delta.y / 500.0,
+            z: -delta.y / 600.0,
         };
         // println!("{:?}", marker.translation);
     }

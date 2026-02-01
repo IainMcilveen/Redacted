@@ -117,7 +117,7 @@ fn setup(
 fn bob_boss(
     time: Res<Time>,
     mut boss: Single<&mut Transform, With<Boss>>,
-    mut planner: Query<&mut Transform, (With<Planner>, Without<Boss>)>
+    mut planner: Query<&mut Transform, (With<Planner>, Without<Boss>)>,
 ) {
     let t = sin(time.elapsed_secs() * 2.1);
     boss.translation.y = BOSS_POS.y + t * BOB_VALUE;
@@ -137,7 +137,7 @@ fn update_scores(
         let correct_redacted = score_res.page_redaction;
         let unredacted = score_res.page_total - correct_redacted;
 
-        text3d.segments = Text3d::new(format!("Boss:\n\nRedact anything related to Bees NOW\n\nPage {}/{}\nRedacted: {}\nUnredacted: {}",
+        text3d.segments = Text3d::new(format!("Boss:\nRedact anything related to Bees NOW\nPress Space to change view\n\nPage {}/{}\nRedacted: {}\nUnredacted: {}",
         page.page_num + 1,
         page.pages.pages.len(),
         correct_redacted,

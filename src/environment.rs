@@ -34,8 +34,8 @@ pub struct MobSound;
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone, Default)]
 pub enum Looks {
-    #[default]
     Page,
+    #[default]
     Forward,
 }
 
@@ -47,8 +47,8 @@ pub(super) fn plugin(app: &mut App) {
         .insert_resource(GlassCrackStage(0))
         .insert_resource(LastCrackStage(0))
         .insert_resource(LookingAt {
-            vec: PAGE_LOOK,
-            look: Looks::Page,
+            vec: FORWARD_LOOK,
+            look: Looks::Forward,
         })
         .add_systems(OnEnter(GameState::PLAYING), setup)
         .add_systems(Update, (update_glass_cracks, update_looking));
@@ -72,8 +72,8 @@ fn setup(
     glass_crack_prev.0 = 0;
 
     // reset look
-    looking_at.vec = PAGE_LOOK;
-    looking_at.look = Looks::Page;
+    looking_at.vec = FORWARD_LOOK;
+    looking_at.look = Looks::Forward;
 
     commands.spawn((
         Sprite::from_image(assets.wall.clone()),

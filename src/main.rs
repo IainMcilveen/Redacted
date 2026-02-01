@@ -20,10 +20,10 @@ mod mob;
 mod paint;
 mod paper;
 mod pen;
-mod text_asset;
 mod planner;
+mod text_asset;
 
-pub const LIFETIME: f32 = 150.0;
+pub const LIFETIME: f32 = 60.0;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum GameState {

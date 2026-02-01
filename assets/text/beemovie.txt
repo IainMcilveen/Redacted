@@ -1,8 +1,8 @@
-According to all known laws of aviation, there is no way a <bee> should be able to fly.
-Its wings are too small to get its fat little body off the ground.
+According to all known laws of aviation, there is no way a <bee> should be able to <fly>.
+Its <wing>s are too small to get its fat little body off the ground.
 The <bee>, of course, flies anyway because <bee>s don't care what humans think is impossible.
-Yellow, black. Yellow, black. Yellow, black. Yellow, black.
-Ooh, black <bee> and yellow!
+<yellow>, <black>. <yellow>, <black>. <yellow>, <black>. <yellow>, <black>.
+Ooh, <black> <bee> and <yellow>!
 Let's shake it up a little.
 Barry! Breakfast is ready!
 Coming!
@@ -25,7 +25,7 @@ You got lint on your fuzz.
 Ow! That's me!
 Wave to us! We'll be in row 118,000.
 Bye!
-Barry, I told you, stop flying in the house!
+Barry, I told you, stop <fly>ing in the house!
 Hey, Adam.
 Hey, Barry.
 Is that fuzz gel?
@@ -35,7 +35,7 @@ Three days grade school, three days high school.
 Those were awkward.
 Three days college. I'm glad I took a day and hitchhiked around The <hive>.
 You did come back different.
-Hi, Barry. Artie, growing a mustache? Looks good.
+Hi, Barry. Artie, gro<wing> a mustache? Looks good.
 Hear about Frankie?
 Yeah.
 You going to the funeral?
@@ -53,7 +53,7 @@ We are!
 Amen!
 Hallelujah!
 Students, faculty, distinguished <bee>s,
-please welcome Dean Buzzwell.
+please welcome Dean <buzz>well.
 Welcome, New <hive> City graduating class of 9:15.
 That concludes our ceremonies And begins your career at Honex Industries!
 Will we pick our job today?
@@ -118,7 +118,7 @@ You're sky freaks! I love it! I love it!
 I wonder where they were.
 I don't know.
 Their day's not planned.
-Outside The <hive>, flying who knows where, doing who knows what.
+Outside The <hive>, <fly>ing who knows where, doing who knows what.
 You can't just decide to be a Pollen Jock. You have to be bred for that.
 Right.
 Look. That's more pollen than you and I will see in a lifetime.
@@ -148,7 +148,7 @@ A puddle jump for us, but maybe you're not up for it.
 Maybe I am.
 You are not!
 We're going 0900 at J-Gate.
-What do you think, buzzy-boy?
+What do you think, <buzz>y-boy?
 Are you <bee> enough?
 I might be. It all depends on what 0900 means.
 Hey, Honex!
@@ -229,22 +229,22 @@ Really? Feeling lucky, are you?
 Sign here, here. Just initial that.
 Thank you.
 OK.
-You got a rain advisory today, and as you all know, <bee>s cannot fly in rain.
+You got a rain advisory today, and as you all know, <bee>s cannot <fly> in rain.
 So be careful. As always, watch your brooms, hockey sticks, dogs, birds, bears and bats.
 Also, I got a couple of reports of root <bee>r being poured on us.
 Murphy's in a home because of it, babbling like a cicada!
 That's awful.
 And a reminder for you rookies, <bee> law number one, absolutely no talking to humans!
  All right, launch positions!
-Buzz, buzz, buzz, buzz! Buzz, buzz, buzz, buzz! Buzz, buzz, buzz, buzz!
-Black and yellow!
+<buzz>, <buzz>, <buzz>, <buzz>! <buzz>, <buzz>, <buzz>, <buzz>! <buzz>, <buzz>, <buzz>, <buzz>!
+<black> and <yellow>!
 Hello!
 You ready for this, hot shot?
 Yeah. Yeah, bring it on.
 Wind, check.
 Antennae, check.
 Nectar pack, check.
-Wings, check.
+<wing>s, check.
 Stinger, check.
 Scared out of my shorts, check.
 OK, ladies,
@@ -272,7 +272,7 @@ See that? It's a little bit of magic.
 That's amazing. Why do we do that?
 That's pollen power. More pollen, more flowers, more nectar, more <honey> for us.
 Cool.
-I'm picking up a lot of bright yellow, Could be daisies, Don't we need those?
+I'm picking up a lot of bright <yellow>, Could be daisies, Don't we need those?
 Copy that visual.
 Wait. One of these flowers seems to be on the move.
 Say again? You're reporting a moving flower?
@@ -317,7 +317,7 @@ Spray him, Granny!
 What are you doing?!
 Wow... the tension level out here is unbelievable.
 I gotta get home.
-Can't fly in rain. Can't fly in rain. Can't fly in rain.
+Can't <fly> in rain. Can't <fly> in rain. Can't <fly> in rain.
 Mayday! Mayday! <bee> going down!
 Ken, could you close the window please?
 Ken, could you close the window please?
@@ -410,7 +410,7 @@ You look great!
 I don't know if you know anything about fashion.
 Are you all right?
 No.
-He's making the tie in the cab as they're flying up Madison.
+He's making the tie in the cab as they're <fly>ing up Madison.
 He finally gets there.
 He runs up the steps into the church.
 The wedding is on.
@@ -491,7 +491,7 @@ Oh, boy.
 She's so nice. And she's a florist!
 Oh, no! You're dating a human florist!
 We're not dating.
-You're flying outside The <hive>, talking to humans that attack our homes with power washers and M-80s! One-eighth a stick of dynamite!
+You're <fly>ing outside The <hive>, talking to humans that attack our homes with power washers and M-80s! One-eighth a stick of dynamite!
 She saved my life! And she understands me.
 This is over!
 Eat this.
@@ -550,7 +550,7 @@ To be in the Tournament of Roses, that's every florist's dream!
 Up on a float, surrounded by flowers, crowds cheering.
 A tournament. Do the roses compete in athletic events?
 No. All right, I've got one.
-How come you don't fly everywhere?
+How come you don't <fly> everywhere?
 It's exhausting. Why don't you run everywhere? It's faster.
 Yeah, OK, I see, I see.
 All right, your turn.
@@ -657,7 +657,7 @@ Not us, man. We on our own. Every mosquito on his own.
 What if you get in trouble?
 You a mosquito, you in trouble. Nobody likes us. They just smack. See a mosquito, smack, smack!
 At least you're out in the world. You must meet girls.
-Mosquito girls try to trade up, get with a moth, dragonfly. Mosquito girl don't want no mosquito.
+Mosquito girls try to trade up, get with a moth, dragon<fly>. Mosquito girl don't want no mosquito.
 You got to be kidding me!
 Mooseblood's about to leave the building! So long, <bee>!
 Hey, guys!
@@ -716,7 +716,7 @@ Up the nose? That's a killer.
 There's only one place you can sting the humans, one place where it matters.
 <hive> at Five, The <hive>'s only full-hour action news source.
 No more <bee> beards!
-With Bob Bumble at the anchor desk. Weather with Storm Stinger. Sports with Buzz Larvi. And Jeanette Chung.
+With Bob Bumble at the anchor desk. Weather with Storm Stinger. Sports with <buzz> Larvi. And Jeanette Chung.
 Good evening. I'm Bob Bumble.
 And I'm Jeanette Ohung.
 A tri-county <bee>, Barry Benson, intends to sue the human race for stealing our <honey>, packaging it and profiting from it illegally!
@@ -886,7 +886,7 @@ You're bluffing.
 Am I?
 Surf's up, dude!
 Poo water!
-That bowl is gnarly. Except for those dirty yellow rings!
+That bowl is gnarly. Except for those dirty <yellow> rings!
 Kenneth! What are you doing?!
 You know, I don't even like <honey>! I don't eat it!
 We need to talk! He's just a little <bee>!
@@ -932,7 +932,7 @@ I'm going to pincushion this guy!
 Adam, don't! It's what he wants!
 Oh, I'm hit!! Oh, lordy, I am hit!
 Order! Order!
-The venom! The venom is coursing through my veins! I have <bee>n felled by a winged beast of destruction! You see? You can't treat them like equals! They're striped savages! Stinging's the only thing they know! It's their way!
+The venom! The venom is coursing through my veins! I have <bee>n felled by a <wing>ed beast of destruction! You see? You can't treat them like equals! They're striped savages! Stinging's the only thing they know! It's their way!
 Adam, stay with me.
 I can't feel my legs.
 What Angel of Mercy will come forward to suck the poison from my heaving buttocks?
@@ -973,7 +973,7 @@ And assuming you've done step correctly, you're ready for the tub.
 Mr. Flayman.
 Yes? Yes, Your Honor!
 Where is the rest of your team?
-Well, Your Honor, it's interesting. <bee>s are trained to fly haphazardly, and as a result, we don't make very good time.
+Well, Your Honor, it's interesting. <bee>s are trained to <fly> haphazardly, and as a result, we don't make very good time.
 I actually heard a funny story about...
 Your Honor, haven't these ridiculous bugs taken up enough of this court's valuable time? How much longer will we allow these absurd shenanigans to go on?
 They have presented no compelling evidence to support their charges against my clients, who run legitimate businesses.
@@ -987,7 +987,7 @@ Hold it, Your Honor!
 You want a smoking gun? Here is your smoking gun.
 What is that?
 It's a <bee> smoker!
-What, this? This harmless little contraption? This couldn't hurt a fly, let alone a <bee>.
+What, this? This harmless little contraption? This couldn't hurt a <fly>, let alone a <bee>.
 Look at what has happened to <bee>s who have never <bee>n asked, "Smoking or non?" Is this what nature intended for us? To be forcibly addicted to smoke machines and man-made wooden slat work camps?
 Living out our lives as <honey> slaves to the white man?
 What are we gonna do?
@@ -1024,7 +1024,7 @@ Can't breathe.
 Bring it in, boys!
 Hold it right there! Good.
 Tap it.
-Mr. Buzzwell, we just passed three cups and there's gallons more coming!
+Mr. <buzz>well, we just passed three cups and there's gallons more coming!
 I think we need to shut down!
 Shut down? We've never shut down.
 Shut down <honey> production!
@@ -1180,7 +1180,7 @@ There was a DustBuster, a toupee, a life raft exploded.
 One's bald, one's in a boat, they're both unconscious!
 Is that another <bee> joke?
 No!
-No one's flying the plane!
+No one's <fly>ing the plane!
 This is JFK control tower, Flight 356. What's your status?
 This is Vanessa Bloome. I'm a florist from New York.
 Where's the pilot?
@@ -1191,8 +1191,8 @@ Who's that?
 Barry Benson.
 From the <honey> trial?! Oh, great.
 Vanessa, this is nothing more than a big metal <bee>.
-It's got giant wings, huge engines.
-I can't fly a plane.
+It's got giant <wing>s, huge engines.
+I can't <fly> a plane.
 Why not? Isn't John Travolta a pilot?
 Yes.
 How hard could it be?
@@ -1208,9 +1208,9 @@ Just a minute. There's a <bee> on that plane.
 I'm quite familiar with Mr. Benson and his no-account compadres.
 They've done enough damage.
 But isn't he your only hope?
-Technically, a <bee> shouldn't be able to fly at all.
-Their wings are too small... Haven't we heard this a million times?
-"The surface area of the wings and body mass make no sense."
+Technically, a <bee> shouldn't be able to <fly> at all.
+Their <wing>s are too small... Haven't we heard this a million times?
+"The surface area of the <wing>s and body mass make no sense."
 Get this on the air!
 Got it.
 Stand by.
@@ -1220,7 +1220,7 @@ But let me tell you about a small job. If you do it well, it makes a big differe
 More than we realized. To us, to everyone.
 That's why I want to get <bee>s back to working together. That's the <bee> way! We're not made of Jell-O.
 We get behind a fellow.
-Black and yellow!
+<black> and <yellow>!
 Hello!
 Left, right, down, hover.
 Hover?
@@ -1231,10 +1231,10 @@ Barry, what happened?!
 Wait, I think we were on autopilot the whole time.
 That may have <bee>n helping me.
 And now we're not!
-So it turns out I cannot fly a plane.
+So it turns out I cannot <fly> a plane.
 All of you, let's get behind this fellow! Move it out!
 Move out!
-Our only chance is if I do what I'd do, you copy me with the wings of the plane!
+Our only chance is if I do what I'd do, you copy me with the <wing>s of the plane!
 Don't have to yell.
 I'm not yelling! We're in a lot of trouble.
 It's very hard to concentrate with that panicky tone in your voice!
@@ -1251,15 +1251,15 @@ You snap out of it!
 You snap out of it!
 Hold it!
 Why? Come on, it's my turn.
-How is the plane flying?
+How is the plane <fly>ing?
 I don't know.
 Hello?
 Benson, got any flowers for a happy occasion in there?
 The Pollen Jocks!
 They do get behind a fellow.
-Black and yellow.
+<black> and <yellow>.
 Hello.
-All right, let's drop this tin can on the blacktop.
+All right, let's drop this tin can on the <black>top.
 Where? I can't see anything. Can you?
 No, nothing. It's all cloudy.
 Come on. You got to think <bee>, Barry.
@@ -1295,14 +1295,14 @@ I mean the giant pulsating flower made of millions of <bee>s!
 Pull forward. Nose down. Tail up.
 Rotate around it.
 This is insane, Barry!
-This's the only way I know how to fly.
-Am I koo-koo-kachoo, or is this plane flying in an insect-like pattern?
+This's the only way I know how to <fly>.
+Am I koo-koo-kachoo, or is this plane <fly>ing in an insect-like pattern?
 Get your nose in there. Don't be afraid. Smell it. Full reverse!
 Just drop it. Be a part of it.
 Aim for the center!
 Now drop it in! Drop it in, woman!
 Come on, already.
-Barry, we did it! You taught me how to fly!
+Barry, we did it! You taught me how to <fly>!
 Yes. No high-five!
 Right.
 Barry, it worked!
@@ -1343,13 +1343,13 @@ Have a great afternoon!
 Barry, I just got this huge tulip order, and I can't get them anywhere.
 No problem, Vannie. Just leave it to me.
 You're a lifesaver, Barry. Can I help who's next?
-All right, scramble, jocks! It's time to fly.
+All right, scramble, jocks! It's time to <fly>.
 Thank you, Barry!
 That <bee> is living my life!
 Let it go, Kenny.
 When will this nightmare end?!
 Let it all go.
-Beautiful day to fly.
+Beautiful day to <fly>.
 Sure is.
 Between you and me,
 I was dying to get out of that office.
