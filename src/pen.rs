@@ -22,13 +22,23 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(Startup, setup_mesh_and_animation)
         .add_systems(OnEnter(GameState::PLAYING), set_mouse_setting)
         .add_systems(Startup, create_ink_meter)
-        .add_systems(Update, mouse_motion_system)
-        .add_systems(Update, marker_animation_change)
-        .add_systems(Update, setup_scene_once_loaded)
-        .add_systems(Update, update_ink_supply_meter)
-        .add_systems(Update, (pen_drop, ray_cast_system))
-        .add_systems(FixedUpdate, can_draw_check)
-        .add_systems(FixedUpdate, check_refill);
+        .add_systems(
+            Update,
+            (
+                mouse_motion_system,
+                marker_animation_change,
+                setup_scene_once_loaded,
+                update_ink_supply_meter,
+                pen_drop,
+                ray_cast_system,
+            )
+                .run_if(in_state(GameState::PLAYING))
+                .chain(), // makes them run in the order given
+        )
+        .add_systems(
+            FixedUpdate,
+            (can_draw_check, check_refill).run_if(in_state(GameState::PLAYING)),
+        );
 }
 
 // An example asset that contains a mesh and animation.

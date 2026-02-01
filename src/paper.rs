@@ -45,7 +45,10 @@ pub(super) fn plugin(app: &mut App) {
         ..default()
     })
     .add_systems(OnEnter(GameState::PLAYING), setup)
-    .add_systems(FixedUpdate, check_redacted);
+    .add_systems(
+        FixedUpdate,
+        check_redacted.run_if(in_state(GameState::PLAYING)),
+    );
     // .add_systems(
     //     Update,
     //     (menu_action, button_system).run_if(in_state(GameState::MENU)),
@@ -82,7 +85,7 @@ fn setup(
 ) {
     // Text on the paper
     let page_string = "That's all the family news that we're allowed to talk about. We really hope you'll come and visit us soon. I mean we're literally begging you to visit us. And make it quick before they <kill us> Now it's time for Christmas dinner - I think the robots sent us a pie! You know I love my soylent green.";
-    // let page_string = get_text_file("assets/text/beemovie.txt") .expect("CAN't LOAD BEE MOVIE");
+    //let page_string = get_text_file("assets/text/beemovie.txt").expect("CAN't LOAD BEE MOVIE");
     let x_offset = 0.022;
     let y_offset = 0.032;
     let mut row = 0;

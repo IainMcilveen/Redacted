@@ -22,7 +22,10 @@ const CANVAS_LAYER: RenderLayers = RenderLayers::layer(1);
 pub(super) fn plugin(app: &mut App) {
     app.init_resource::<BrushState>()
         .add_systems(Startup, setup)
-        .add_systems(Update, mouse_draw_system);
+        .add_systems(
+            Update,
+            mouse_draw_system.run_if(in_state(GameState::PLAYING)),
+        );
 }
 
 fn setup(
@@ -135,12 +138,12 @@ fn mouse_draw_system(
         //     setting: PlaybackSettings::DESPAWN,
         // });
         // First click stroke
-        commands.spawn((
-            Sprite::from_color(Color::srgb(1.0, 0.0, 0.0), Vec2::splat(15.0)),
-            Transform::from_xyz(current_pos.x, current_pos.y, 0.0),
-            CANVAS_LAYER,
-            DespawnOnExit(GameState::PLAYING),
-        ));
+        // commands.spawn((
+        //     Sprite::from_color(Color::srgb(1.0, 0.0, 0.0), Vec2::splat(15.0)),
+        //     Transform::from_xyz(current_pos.x, current_pos.y, 0.0),
+        //     CANVAS_LAYER,
+        //     DespawnOnExit(GameState::PLAYING),
+        // ));
     }
 
     brush_state.last_pos = Some(current_pos);
