@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use bevy::{color::palettes::css, math::ops::floor};
 use bevy_rich_text3d::{Text3d, Text3dBounds, Text3dStyling, TextAtlas, Weight};
 
-use crate::CountdownTimer;
+use crate::{CountdownTimer, GameState};
 
 const ALARM_CLOCK_MODEL_PATH: &str = "models/alarm_clock.glb";
 
@@ -14,7 +14,7 @@ struct AlarmClockText;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Startup, setup_mesh)
-        .add_systems(Update, update_clock);
+        .add_systems(Update, update_clock.run_if(in_state(GameState::PLAYING)));
 }
 
 fn setup_mesh(
@@ -29,7 +29,11 @@ fn setup_mesh(
     alarm_clock_transform.rotation = Quat::from_rotation_y(225.0 / 360.0 * PI * 2.0);
     alarm_clock_transform.scale = Vec3::splat(0.075);
 
-    commands.spawn((alarm_clock_scene, alarm_clock_transform));
+    commands.spawn((
+        alarm_clock_scene,
+        alarm_clock_transform,
+        DespawnOnExit(GameState::PLAYING),
+    ));
 
     let mut text_transform = alarm_clock_transform.clone();
     text_transform.rotation = alarm_clock_transform.rotation.clone();
@@ -59,6 +63,7 @@ fn setup_mesh(
         })),
         text_transform,
         Mesh3d::default(),
+        DespawnOnExit(GameState::PLAYING),
     ));
     commands.spawn((
         AlarmClockText,
@@ -72,13 +77,14 @@ fn setup_mesh(
             ..default()
         },
         light_transform,
+        DespawnOnExit(GameState::PLAYING),
     ));
 }
 
 fn update_clock(
     timer: Res<CountdownTimer>,
     mut alarm_clock_text: Single<(&mut Text3d, &mut Transform), With<AlarmClockText>>,
-    mut alarm_color_light: Single<&mut SpotLight, With<AlarmClockText>>
+    mut alarm_color_light: Single<&mut SpotLight, With<AlarmClockText>>,
 ) {
     let countdown = floor(timer.0.remaining_secs()) as u32;
     let minutes = countdown / 60;

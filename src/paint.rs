@@ -1,6 +1,7 @@
 use bevy::camera::RenderTarget;
 use bevy::{camera::visibility::RenderLayers, prelude::*, render::render_resource::TextureFormat};
 
+use crate::GameState;
 use crate::audio::{SoundEvent, Sounds};
 use crate::paper::PAPER_POS;
 use crate::pen::{InkSupplyPercent, Marker};
@@ -82,8 +83,8 @@ fn mouse_draw_system(
     }
 
     let (marker, mut ink_supply) = marker_q.into_inner();
-    if !marker.can_draw{
-        println!("Can't draw!");
+    if !marker.can_draw {
+        // println!("Can't draw!");
         return;
     }
     let location: Vec3;
@@ -115,14 +116,15 @@ fn mouse_draw_system(
                 Sprite::from_color(Color::srgb(0.0, 0.0, 0.0), Vec2::splat(25.0)),
                 Transform::from_xyz(lerped_pos.x, lerped_pos.y, 0.0),
                 CANVAS_LAYER,
+                DespawnOnExit(GameState::PLAYING),
             ));
         }
-        
-        if !ink_supply.1{
-            println!("{:?}", ink_supply.0);
+
+        if !ink_supply.1 {
+            // println!("{:?}", ink_supply.0);
             let distance = last_pos.distance(current_pos);
             ink_supply.0 -= distance / 10.0;
-            if ink_supply.0 < 0.0{
+            if ink_supply.0 < 0.0 {
                 ink_supply.0 = 0.0;
             }
         }
@@ -137,6 +139,7 @@ fn mouse_draw_system(
             Sprite::from_color(Color::srgb(1.0, 0.0, 0.0), Vec2::splat(15.0)),
             Transform::from_xyz(current_pos.x, current_pos.y, 0.0),
             CANVAS_LAYER,
+            DespawnOnExit(GameState::PLAYING),
         ));
     }
 

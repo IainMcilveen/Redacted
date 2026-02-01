@@ -21,15 +21,15 @@ mod paper;
 mod pen;
 mod text_asset;
 
-pub const LIFETIME: f32 = 120.0;
+pub const LIFETIME: f32 = 20.0;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum GameState {
     #[default]
     LOADING,
     MENU,
-    PAGETEST,
     PLAYING,
+    END,
 }
 
 #[derive(Resource)]
@@ -59,7 +59,10 @@ fn main() {
             // Can be changed per mesh using the `WireframeColor` component.
             default_color: Color::WHITE.into(),
         })
-        .insert_resource(CountdownTimer(Timer::from_seconds(LIFETIME, TimerMode::Once)))
+        .insert_resource(CountdownTimer(Timer::from_seconds(
+            LIFETIME,
+            TimerMode::Once,
+        )))
         .add_plugins(MeshPickingPlugin)
         .init_state::<GameState>()
         .add_systems(Update, update_countdown)
@@ -78,9 +81,15 @@ fn main() {
 }
 
 fn framerate(time: Res<Time>) {
-    println!("{}", 1.0 / time.delta_secs())
+    // println!("{}", 1.0 / time.delta_secs())
 }
 
-fn update_countdown(time: Res<Time>, mut timer: ResMut<CountdownTimer>) {
-    timer.0.tick(time.delta());
+fn update_countdown(
+    mut next_state: ResMut<NextState<GameState>>,
+    time: Res<Time>,
+    mut timer: ResMut<CountdownTimer>,
+) {
+    if timer.0.tick(time.delta()).is_finished() {
+        next_state.set(GameState::END);
+    }
 }

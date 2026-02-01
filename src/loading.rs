@@ -18,17 +18,17 @@ fn load(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(GameAssets {
         wall: asset_server.load("textures/wall.png"),
         glass_cracks: vec![
-            asset_server.load("textures/glass_cracks/glass_cracks1.png"),
-            asset_server.load("textures/glass_cracks/glass_cracks2.png"),
-            asset_server.load("textures/glass_cracks/glass_cracks3.png"),
-            asset_server.load("textures/glass_cracks/glass_cracks4.png"),
-            asset_server.load("textures/glass_cracks/glass_cracks5.png"),
-            asset_server.load("textures/glass_cracks/glass_cracks6.png"),
-            asset_server.load("textures/glass_cracks/glass_cracks7.png"),
-            asset_server.load("textures/glass_cracks/glass_cracks8.png"),
-            asset_server.load("textures/glass_cracks/glass_cracks9.png"),
-            asset_server.load("textures/glass_cracks/glass_cracks10.png"),
-            asset_server.load("textures/glass_cracks/glass_cracks11.png"),
+            asset_server.load("textures/glass/glass1.png"),
+            asset_server.load("textures/glass/glass2.png"),
+            asset_server.load("textures/glass/glass3.png"),
+            asset_server.load("textures/glass/glass4.png"),
+            asset_server.load("textures/glass/glass5.png"),
+            asset_server.load("textures/glass/glass6.png"),
+            asset_server.load("textures/glass/glass7.png"),
+            asset_server.load("textures/glass/glass8.png"),
+            asset_server.load("textures/glass/glass9.png"),
+            asset_server.load("textures/glass/glass10.png"),
+            asset_server.load("textures/glass/glass11.png"),
         ],
         mob_sprites: vec![
             asset_server.load("textures/mob/mob1.png"),
@@ -48,7 +48,7 @@ fn check_ready(
         .get_load_state(assets.wall.id())
         .is_some_and(|asset| asset.is_loaded())
     {
-        next_state.set(GameState::PAGETEST);
+        next_state.set(GameState::MENU);
     }
 }
 
@@ -61,7 +61,7 @@ fn check_ready(
 //     for event in events.read() {
 //         if event.is_loaded_with_dependencies(&rpg_sprite_folder.0) {
 //             println!("Moving to game state...");
-//             next_state.set(GameState::PAGETEST);
+//             next_state.set(GameState::PLAYING);
 //         }
 //     }
 // }
