@@ -48,53 +48,101 @@ fn spawn_feedback(
                 sound: Sounds::VineBoom,
                 setting: PlaybackSettings::ONCE,
             });
+            let material = materials.add(StandardMaterial {
+                base_color: Color::srgba(0.0, 1.0, 0.0, 1.0), // Green
+                alpha_mode: AlphaMode::Blend,
+                ..default()
+            });
+
+            // We'll reuse a simple Box mesh for both legs, scaled via Transform
+            let mesh = meshes.add(Cuboid::new(0.1, 1.0, 0.1));
+
+            // Parent entity with Lifetime
+            commands
+                .spawn((
+                    Transform::from_translation(event.pos).with_scale(Vec3::new(-0.1, 0.1, 0.1)),
+                    Visibility::default(),
+                    FeedbackObject::new(5.0),
+                ))
+                .with_children(|parent| {
+                    // Short leg (left side)
+                    parent.spawn((
+                        Mesh3d(mesh.clone()),
+                        MeshMaterial3d(material.clone()),
+                        Transform::from_xyz(-0.18, -0.1, 0.0) // Lowered slightly
+                            .with_rotation(Quat::from_rotation_z(0.785)) // +45 deg (tilted up-right)
+                            .with_scale(Vec3::new(1.0, 0.3, 1.0)),
+                    ));
+
+                    // Long leg (right side)
+                    parent.spawn((
+                        Mesh3d(mesh),
+                        MeshMaterial3d(material),
+                        Transform::from_xyz(0.16, 0.1, 0.0) // Raised slightly
+                            .with_rotation(Quat::from_rotation_z(-0.785)) // -45 deg (tilted up-left)
+                            .with_scale(Vec3::new(1.0, 0.68, 1.0)),
+                    ));
+                });
         }
         Feedbacks::Wrong => {
             commands.trigger(SoundEvent {
                 sound: Sounds::VineBoom,
                 setting: PlaybackSettings::ONCE,
             });
+            let mesh = meshes.add(Cuboid::new(0.1, 1.0, 0.1));
+            let material = materials.add(StandardMaterial {
+                base_color: Color::srgba(1.0, 0.0, 0.0, 1.0),
+                alpha_mode: AlphaMode::Blend,
+                ..default()
+            });
+
+            // Parent entity controls the lifetime and upward drift
+            commands
+                .spawn((
+                    Transform::from_translation(event.pos).with_scale(Vec3::splat(0.1)),
+                    Visibility::default(),
+                    FeedbackObject::new(3.5),
+                ))
+                .with_children(|parent| {
+                    // Bar 1
+                    parent.spawn((
+                        Mesh3d(mesh.clone()),
+                        MeshMaterial3d(material.clone()),
+                        Transform::from_rotation(Quat::from_rotation_z(0.785)),
+                    ));
+                    // Bar 2
+                    parent.spawn((
+                        Mesh3d(mesh),
+                        MeshMaterial3d(material),
+                        Transform::from_rotation(Quat::from_rotation_z(-0.785)),
+                    ));
+                });
         }
     }
-
-    // spawn feedback at pen position
-    commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
-        MeshMaterial3d(materials.add(StandardMaterial {
-            base_color: Color::srgba(1.0, 0.0, 0.0, 1.0),
-            alpha_mode: AlphaMode::Blend,
-            ..default()
-        })),
-        Transform::from_translation(event.pos),
-        FeedbackObject::new(5.0),
-    ));
 }
 
 fn handle_feedback(
     mut commands: Commands,
     time: Res<Time>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut query: Query<(
-        Entity,
-        &mut FeedbackObject,
-        &mut Transform,
-        &MeshMaterial3d<StandardMaterial>,
-    )>,
+    mut query: Query<(Entity, &mut FeedbackObject, &mut Transform, &Children)>,
+    child_query: Query<&MeshMaterial3d<StandardMaterial>>,
 ) {
-    for (entity, mut obj, mut transform, material_handle) in query.iter_mut() {
-        // Tick the timer with delta time
+    for (entity, mut obj, mut transform, children) in &mut query {
         obj.timer.tick(time.delta());
+        transform.translation.y += 0.75 * time.delta_secs();
 
-        // move feedback upwards
-        transform.translation.y += 1.0 * time.delta_secs();
+        let alpha = 1.0 - obj.timer.fraction() * 4.0;
 
-        // fade feedback out
-        if let Some(material) = materials.get_mut(material_handle) {
-            let alpha = 1.0 - obj.timer.fraction(); // Fades from 1.0 to 0.0
-            material.base_color.set_alpha(alpha);
+        // Update alpha for all children (the bars of the X or checkmark)
+        for child in children.iter() {
+            if let Ok(material_handle) = child_query.get(child) {
+                if let Some(material) = materials.get_mut(material_handle) {
+                    material.base_color.set_alpha(alpha);
+                }
+            }
         }
 
-        // If finished, despawn the entity
         if obj.timer.is_finished() {
             commands.entity(entity).despawn();
         }

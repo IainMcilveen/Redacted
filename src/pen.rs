@@ -172,7 +172,20 @@ fn ray_cast_system(
                     }
                     _ => {}
                 }
+            } else if !character.is_redacted {
+                character.is_redacted = true;
+
+                match marker.tip_location {
+                    Some(pos) => {
+                        commands.trigger(FeedbackEvent {
+                            feedback: Feedbacks::Wrong,
+                            pos: pos,
+                        });
+                    }
+                    _ => {}
+                }
             }
+
             // println!("redacted?, {}", character.to_redact);
         }
         // println!("{:?}", hits);
