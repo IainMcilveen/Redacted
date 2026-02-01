@@ -5,6 +5,7 @@ use bevy::prelude::*;
 use bevy_sprite3d::{Sprite3d, Sprite3dPlugin};
 
 use super::GameState;
+use crate::audio::{SoundEvent, Sounds};
 use crate::loading::GameAssets;
 use crate::{CountdownTimer, LIFETIME};
 
@@ -15,6 +16,9 @@ struct GlassCrackWall;
 
 #[derive(Resource)]
 pub struct GlassCrackStage(pub usize);
+
+#[derive(Resource)]
+pub struct LastCrackStage(pub usize);
 
 #[derive(Resource)]
 struct LookingAt {
@@ -38,6 +42,7 @@ pub const FORWARD_LOOK: Vec3 = Vec3::new(0.0, 1.25, 10.0);
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(Sprite3dPlugin)
         .insert_resource(GlassCrackStage(0))
+        .insert_resource(LastCrackStage(0))
         .insert_resource(LookingAt {
             vec: PAGE_LOOK,
             look: Looks::Page,
@@ -53,9 +58,15 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut countdown: ResMut<CountdownTimer>,
     mut looking_at: ResMut<LookingAt>,
+    mut glass_crack_stage: ResMut<GlassCrackStage>,
+    mut glass_crack_prev: ResMut<LastCrackStage>,
 ) {
     // reset timer
     countdown.0 = Timer::from_seconds(LIFETIME, TimerMode::Once);
+
+    // set glass crack ani stage
+    glass_crack_stage.0 = 0;
+    glass_crack_prev.0 = 0;
 
     // reset look
     looking_at.vec = PAGE_LOOK;
@@ -114,14 +125,25 @@ fn setup(
 }
 
 fn update_glass_cracks(
+    mut commands: Commands,
     timer: ResMut<CountdownTimer>,
     mut glass_crack_stage: ResMut<GlassCrackStage>,
+    mut glass_crack_prev: ResMut<LastCrackStage>,
     mut query: Query<&mut Sprite, With<GlassCrackWall>>,
     assets: Res<GameAssets>,
 ) {
     let progress = timer.0.elapsed_secs() / LIFETIME;
     glass_crack_stage.0 = (floor(progress * assets.glass_cracks.len() as f32) as usize)
         .clamp(0, assets.glass_cracks.len() - 1);
+
+    // trigger crack sound on stage change
+    if glass_crack_prev.0 != glass_crack_stage.0 {
+        glass_crack_prev.0 = glass_crack_stage.0;
+        commands.trigger(SoundEvent {
+            sound: Sounds::GlassCrack,
+            setting: PlaybackSettings::ONCE,
+        })
+    }
     for mut sprite in &mut query {
         sprite.image = assets.glass_cracks[glass_crack_stage.0].clone();
     }
