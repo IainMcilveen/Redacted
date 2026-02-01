@@ -51,7 +51,7 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 // An example asset that contains a mesh and animation.
-const GLTF_PATH: &str = "models/marker_2.glb";
+const GLTF_PATH: &str = "models/marker_1_black.glb";
 const INK_MODEL_PATH: &str = "models/ink_res.glb";
 pub const INK_RES_POS: Vec3 = Vec3::new(-0.5, 0.8, 1.5);
 
@@ -89,8 +89,8 @@ fn create_ink_meter(
 ) {
     commands.spawn((
         InkSupplyMeter(),
-        Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
-        MeshMaterial3d(materials.add(Color::from(css::YELLOW))),
+        Mesh3d(meshes.add(Cuboid::new(0.25, 1.0, 0.25))),
+        MeshMaterial3d(materials.add(Color::from(css::BLACK))),
         Transform::from_xyz(0.0, 1.0, 1.0).with_scale(Vec3::splat(0.1)),
         DespawnOnExit(GameState::PLAYING),
     ));
@@ -179,7 +179,8 @@ fn ray_cast_system(
     let filter = |entity| !ignore_q.contains(entity);
     let settings = MeshRayCastSettings::default().with_filter(&filter);
     let hits = raycast.cast_ray(ray, &settings);
-    gizmos.line(ray.origin, ray.origin + dir_vec, Color::from(css::RED));
+    
+    // gizmos.line(ray.origin, ray.origin + dir_vec, Color::from(css::RED));
 
     for (ent, ray_mesh_hit) in hits {
         // println!("{:?}", ent);

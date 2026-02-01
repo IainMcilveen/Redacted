@@ -133,7 +133,7 @@ fn update_looking(
     time: Res<Time>,
     mut camera_transform: Single<&mut Transform, With<Camera3d>>,
 ) {
-    if keyboard_input.just_pressed(KeyCode::KeyV) {
+    if keyboard_input.just_pressed(KeyCode::Space) {
         match looking_at.look {
             Looks::Forward => {
                 looking_at.look = Looks::Page;
@@ -146,18 +146,18 @@ fn update_looking(
         }
     }
 
-    if keyboard_input.pressed(KeyCode::ArrowUp) {
-        looking_at.vec.y += time.delta_secs() * 2.0;
-    }
-    if keyboard_input.pressed(KeyCode::ArrowDown) {
-        looking_at.vec.y -= time.delta_secs() * 2.0;
-    }
-    if keyboard_input.pressed(KeyCode::ArrowLeft) {
-        looking_at.vec.x += time.delta_secs() * 2.0;
-    }
-    if keyboard_input.pressed(KeyCode::ArrowRight) {
-        looking_at.vec.x -= time.delta_secs() * 2.0;
-    }
+    // if keyboard_input.pressed(KeyCode::ArrowUp) {
+    //     looking_at.vec.y += time.delta_secs() * 2.0;
+    // }
+    // if keyboard_input.pressed(KeyCode::ArrowDown) {
+    //     looking_at.vec.y -= time.delta_secs() * 2.0;
+    // }
+    // if keyboard_input.pressed(KeyCode::ArrowLeft) {
+    //     looking_at.vec.x += time.delta_secs() * 2.0;
+    // }
+    // if keyboard_input.pressed(KeyCode::ArrowRight) {
+    //     looking_at.vec.x -= time.delta_secs() * 2.0;
+    // }
 
     // interpolate camera move
     let speed = 5.0;
