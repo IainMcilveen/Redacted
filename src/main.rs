@@ -19,6 +19,7 @@ mod mob;
 mod paint;
 mod paper;
 mod pen;
+mod text_asset;
 
 pub const LIFETIME: f32 = 120.0;
 

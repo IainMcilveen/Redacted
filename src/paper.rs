@@ -11,6 +11,8 @@ use bevy_rich_text3d::{
     Weight,
 };
 
+use crate::text_asset::get_text_file;
+
 use super::GameState;
 
 #[derive(Component)]
@@ -87,7 +89,7 @@ fn setup(
 
     // Text on the paper
     let page_string = "That's all the family news that we're allowed to talk about. We really hope you'll come and visit us soon. I mean we're literally begging you to visit us. And make it quick before they <kill us> Now it's time for Christmas dinner - I think the robots sent us a pie! You know I love my soylent green.";
-
+    // let page_string = get_text_file("assets/text/beemovie.txt") .expect("CAN't LOAD BEE MOVIE");
     let x_offset = 0.022;
     let y_offset = 0.032;
     let mut row = 0;
